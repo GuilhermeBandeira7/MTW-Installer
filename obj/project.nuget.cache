@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "dgSpecHash": "CllxlOUiT7wrAMfX+A4BDw2zBKLSjdwDJHkG82/Ya1Mw7DqbTX1qG9Bv8JbICCnBsDsDeCNU5YEhM2aI31hHig==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\MTW\\Desktop\\IntallerMTW\\InstallerMTW\\InstallerMTW.csproj",
+  "expectedPackageFiles": [],
+  "logs": [
+    {
+      "code": "NU1803",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "You are running the 'restore' operation with an 'HTTP' source, 'http://packagesource'. Non-HTTPS access will be removed in a future version. Consider migrating to an 'HTTPS' source."
+    }
+  ]
+}
