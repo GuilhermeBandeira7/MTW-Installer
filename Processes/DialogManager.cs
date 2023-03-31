@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 using System.Xml.Serialization;
 
 namespace InstallerMTW.Processes
@@ -15,7 +10,7 @@ namespace InstallerMTW.Processes
     {
         public bool running { get; private set; }
         public CommandsManager terminal { get; private set; }
-        string terminalPath = "C:\\Windows\\System32\\cmd.exe";
+        private string? userInput;
 
         public DialogManager()
         {
@@ -34,19 +29,15 @@ namespace InstallerMTW.Processes
             {
                 try
                 {
-                    Console.Write("do you wish to execute 'dir' command? [y/n]");
-                    string input = Console.ReadLine();
-
-                    switch (input)
-                    {
-                        case "y":
-                            //"/k dir" '/k' executes a command and leaves the app open and '/c' executes command e close the app
-                            terminal.OpenApplication(terminalPath, "/k dir"); break;
-                        case "n":
-                            running = false; break;
-                        default:
-                            throw new ProcessException("wrong input, type 'y' to execute the command or 'n' to exit.");
-                    }                   
+                    Console.Write("do you wish to execute 'dir' command on cmd windows? [y/n]");
+                    userInput = Console.ReadLine();
+                    OpenCmd(userInput);
+                    Console.WriteLine("do you wish to execute 'ls' command on linux bash? [y/n] ");
+                    userInput = Console.ReadLine(); 
+                    OpenBash(userInput);
+                    Console.WriteLine("Install .NET Runtime 7.0 on Linux Ubuntu 18.04? [y/n]");
+                    userInput= Console.ReadLine();
+                    InstallDotNet(userInput);
                 }
                 catch (ProcessException e)
                 {
@@ -57,6 +48,61 @@ namespace InstallerMTW.Processes
                     Console.WriteLine(e.Message);
                 }
             }
+        }
+
+        /// <summary>
+        /// Opens cmd on windows and does the command passed as parameter of the OpenApplication method.
+        /// </summary>
+        /// <param name="input">Input from the user.</param>
+        /// <exception cref="ProcessException"></exception>
+        private void OpenCmd(string input)
+        {
+            switch (input)
+            {
+                case "y":
+                    //"/k dir" '/k' executes a command and leaves the app open and '/c' executes command e close the app
+                    terminal.OpenApplication(terminal.windowsCmdPath, "/k dir"); break;
+                case "n":
+                    running = false; break;
+                default:
+                    throw new ProcessException("wrong input, type 'y' to execute the command or 'n' to exit.");
+            }
+        }
+
+        /// <summary>
+        /// Opens bash on Linux and does the command passed as parameter of the OpenApplication method.
+        /// </summary>
+        /// <param name="input">Input from the user.</param>
+        /// <exception cref="ProcessException"></exception>
+        private void OpenBash(string input)
+        {
+            switch (input)
+            {
+                case "y":
+                    //"-i ls" '-i' executes a command and leaves the terminal open.
+                    terminal.OpenApplication(terminal.linuxBashPath, "-i ls"); break;
+                case "n":
+                    running = false; break;
+                default:
+                    throw new ProcessException("wrong input, type 'y' to execute the command or 'n' to exit.");
+            }
+        }
+
+        private void InstallDotNet(string input)
+        {
+            switch (input)
+            {
+                case "y":
+                    //"-i ls" '-i' executes a command and leaves the terminal open.
+                    terminal.InstallDotnetRuntime(terminal.getSigningKey);
+                    terminal.InstallDotnetRuntime(terminal.installAspnetcore);
+                    terminal.InstallDotnetRuntime(terminal.installRuntime);
+                    break;
+                case "n":
+                    running = false; break;
+                default:
+                    throw new ProcessException("wrong input, type 'y' to execute the command or 'n' to exit.");
+            }           
         }
     }
 }

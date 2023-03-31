@@ -9,7 +9,7 @@ namespace InstallerMTW.Processes
     public class CommandsManager
     {
         /// <summary>
-        /// initialize a process on linux os.
+        /// Initializes a process on the current Operating System.
         /// </summary>
         private Process systemProcess { get; set; }
 
@@ -23,6 +23,22 @@ namespace InstallerMTW.Processes
             }
         }
 
+        //this variable indicates if the process is running or not.
+        private bool isRunning;
+
+        public string linuxBashPath = @"bin/bash";
+        public string windowsCmdPath = "C:\\Windows\\System32\\cmd.exe";
+
+        //variable for linux commands
+        #region LinuxCommands
+        public string getSigningKey = @"wget https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+            sudo dpkg -i packages-microsoft-prod.deb
+            rm packages-microsoft-prod.deb";
+        public string installAspnetcore = @"sudo apt-get update && \ 
+            sudo apt-get install -y aspnetcore-runtime-7.0";
+        public string installRuntime = @"sudo apt-get install -y dotnet-runtime-7.0";
+        #endregion
+
         public CommandsManager()
         {
             systemProcess = new Process();
@@ -31,18 +47,65 @@ namespace InstallerMTW.Processes
         /// <summary>
         /// Opens an OS terminal and executes a specified command.
         /// </summary>
-        /// <param name="filePath">Path to the executable file of the shell.</param>
         /// <param name="command">Specified command to execute on the terminal.</param>
-        public void OpenApplication(string filePath, string command)
+        public void OpenApplication(string operatingSystem, string command)
         {
+            KillProcessIfRunning();
             using(systemProcess)
             {
-                systemProcess.StartInfo.FileName = filePath;
+                systemProcess.StartInfo.FileName = linuxBashPath;
                 systemProcess.StartInfo.Arguments = command;
                 systemProcess.StartInfo.UseShellExecute = true;
                 systemProcess.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
                 systemProcess.Start();
+                ProcessIsRunning();
             }            
+        }
+
+        /// <summary>
+        /// Installs the dotnet runtime
+        /// </summary>
+        /// <param name="command">desired command to be executed on the terminal.</param>
+        public void InstallDotnetRuntime(string command)
+        {
+            try
+            {              
+                OpenApplication(linuxBashPath, command);
+            }
+            catch (ProcessException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// verifies if systemProcess is still running.
+        /// </summary>
+        /// <returns>True if it's running and False if it's been terminated.</returns>
+        public bool ProcessIsRunning()
+        {
+            isRunning = !systemProcess.HasExited ? true : false;
+            if(isRunning) { return true; } else{ return false; }
+        }
+
+        /// <summary>
+        /// Kills a running process
+        /// </summary>
+        /// <exception cref="ProcessException">If an attempt to kill an inexistente process was made the exception is thrown.</exception>
+        public void KillProcessIfRunning()
+        {
+            if (systemProcess != null)
+            {
+                systemProcess.Kill();
+            }
+            else
+            {
+                throw new ProcessException("Can't kill a process that is null or is not running.");
+            }
         }
 
     }
