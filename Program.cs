@@ -1,12 +1,16 @@
-﻿namespace InstallerMTW
+﻿using InstallerMTW.Processes;
+using System.Diagnostics;
+
+namespace InstallerMTW
 {
     internal class Program
     {
         static void Main(string[] args)
         {
-            Console.WriteLine(" Welcome to MTW Installer!\n "+
-                "Do you wish to install the following packages?\n" +
-                "");
+            DialogManager runApp = new DialogManager();
+            runApp.StartTerminalDialog();
+
+            Console.WriteLine("Press any key to exit.");
             Console.ReadKey();
         }
     }
