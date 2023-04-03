@@ -19,7 +19,7 @@ namespace InstallerMTW.Processes
         }
 
         /// <summary>
-        /// Initialize the dialog with the user and uses the user's input as paramater to CommandsManager classes.
+        /// Initialize the dialog with the user and uses the user's input as paramater to CommandsManager methods.
         /// </summary>
         public void StartTerminalDialog()
         {
@@ -61,7 +61,8 @@ namespace InstallerMTW.Processes
             {
                 case "y":
                     //"/k dir" '/k' executes a command and leaves the app open and '/c' executes command e close the app
-                    terminal.OpenApplication(terminal.windowsCmdPath, "/k dir"); break;
+                    terminal.OpenApplication(terminal.windowsCmdPath, "/k dir");
+                    terminal.OpenApplication(terminal.windowsCmdPath, "/k echo 'hello world'"); break;
                 case "n":
                     running = false; break;
                 default:

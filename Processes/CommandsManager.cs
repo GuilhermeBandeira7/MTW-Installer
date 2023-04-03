@@ -42,6 +42,7 @@ namespace InstallerMTW.Processes
         public CommandsManager()
         {
             systemProcess = new Process();
+            isRunning = false;
         }
 
         /// <summary>
@@ -50,10 +51,10 @@ namespace InstallerMTW.Processes
         /// <param name="command">Specified command to execute on the terminal.</param>
         public void OpenApplication(string operatingSystem, string command)
         {
-            KillProcessIfRunning();
+            if(isRunning) { systemProcess = new Process(); }
             using(systemProcess)
             {
-                systemProcess.StartInfo.FileName = linuxBashPath;
+                systemProcess.StartInfo.FileName = operatingSystem;
                 systemProcess.StartInfo.Arguments = command;
                 systemProcess.StartInfo.UseShellExecute = true;
                 systemProcess.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
