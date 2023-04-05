@@ -2,6 +2,19 @@
   "version": 3,
   "targets": {
     "net7.0": {
+      "CliWrap/3.6.0": {
+        "type": "package",
+        "compile": {
+          "lib/netcoreapp3.0/CliWrap.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netcoreapp3.0/CliWrap.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "Microsoft.NETCore.Platforms/1.1.0": {
         "type": "package",
         "compile": {
@@ -387,6 +400,27 @@
     }
   },
   "libraries": {
+    "CliWrap/3.6.0": {
+      "sha512": "AY6LvRZOEYuAiuaWPLnIDddJUnpiPpiSvfoPwweEXI1orRNnsAwf6sOv9Tt0J4GFrlwejFF/INuR57iEKIh7bw==",
+      "type": "package",
+      "path": "cliwrap/3.6.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Readme.md",
+        "cliwrap.3.6.0.nupkg.sha512",
+        "cliwrap.nuspec",
+        "favicon.png",
+        "lib/net462/CliWrap.dll",
+        "lib/net462/CliWrap.xml",
+        "lib/netcoreapp3.0/CliWrap.dll",
+        "lib/netcoreapp3.0/CliWrap.xml",
+        "lib/netstandard2.0/CliWrap.dll",
+        "lib/netstandard2.0/CliWrap.xml",
+        "lib/netstandard2.1/CliWrap.dll",
+        "lib/netstandard2.1/CliWrap.xml"
+      ]
+    },
     "Microsoft.NETCore.Platforms/1.1.0": {
       "sha512": "kz0PEW2lhqygehI/d6XsPCQzD7ff7gUJaVGPVETX611eadGsA3A877GdSlU0LRVMCTH/+P3o2iDTak+S08V2+A==",
       "type": "package",
@@ -1775,6 +1809,7 @@
   },
   "projectFileDependencyGroups": {
     "net7.0": [
+      "CliWrap >= 3.6.0",
       "System.Diagnostics.Process >= 4.3.0"
     ]
   },
@@ -1825,6 +1860,10 @@
       "net7.0": {
         "targetAlias": "net7.0",
         "dependencies": {
+          "CliWrap": {
+            "target": "Package",
+            "version": "[3.6.0, )"
+          },
           "System.Diagnostics.Process": {
             "target": "Package",
             "version": "[4.3.0, )"

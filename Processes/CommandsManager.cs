@@ -1,5 +1,8 @@
-﻿using System.Diagnostics;
-
+﻿using System;
+using System.Diagnostics;
+using System.Globalization;
+using CliWrap;
+using CliWrap.Buffered;
 
 namespace InstallerMTW.Processes
 {
@@ -26,7 +29,7 @@ namespace InstallerMTW.Processes
         //this variable indicates if the process is running or not.
         private bool isRunning;
 
-        public string linuxBashPath = @"bin/bash";
+        public string linuxBashPath = @"/bin/bash";
         public string windowsCmdPath = "C:\\Windows\\System32\\cmd.exe";
 
         //variable for linux commands
@@ -61,6 +64,23 @@ namespace InstallerMTW.Processes
                 systemProcess.Start();
                 ProcessIsRunning();
             }            
+        }
+
+        public async Task OpenTerminal()
+        {
+            var result = await Cli.Wrap("C:\\Users\\MTW\\Desktop\\IntallerMTW\\commands\\commands.bat")
+                .WithWorkingDirectory("C:\\Users\\MTW\\Desktop\\IntallerMTW\\commands")
+                //.WithArguments(new[] { "--version" })
+                .ExecuteBufferedAsync();
+            Console.WriteLine(result.StandardOutput);
+        }
+
+        public async Task OpenLinuxTerminal()
+        {
+            var result = await Cli.Wrap(@"/home/mwt/MTWInstaller/commands/terminal.sh")
+                .WithWorkingDirectory(@"/home/mwt/MTWInstaller/commands/")
+                .ExecuteBufferedAsync();
+            Console.WriteLine(result.StandardOutput);
         }
 
         /// <summary>

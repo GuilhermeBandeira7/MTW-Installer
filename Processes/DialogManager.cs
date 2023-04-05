@@ -1,4 +1,5 @@
 ﻿
+using System.ComponentModel;
 using System.Xml.Serialization;
 
 namespace InstallerMTW.Processes
@@ -10,7 +11,6 @@ namespace InstallerMTW.Processes
     {
         public bool running { get; private set; }
         public CommandsManager terminal { get; private set; }
-        private string? userInput;
 
         public DialogManager()
         {
@@ -29,15 +29,9 @@ namespace InstallerMTW.Processes
             {
                 try
                 {
-                    Console.Write("do you wish to execute 'dir' command on cmd windows? [y/n]");
-                    userInput = Console.ReadLine();
-                    OpenCmd(userInput);
-                    Console.WriteLine("do you wish to execute 'ls' command on linux bash? [y/n] ");
-                    userInput = Console.ReadLine(); 
-                    OpenBash(userInput);
-                    Console.WriteLine("Install .NET Runtime 7.0 on Linux Ubuntu 18.04? [y/n]");
-                    userInput= Console.ReadLine();
-                    InstallDotNet(userInput);
+                    Console.WriteLine("Open cmd and execute 'dir' command? [y/n]");
+                    string input = Console.ReadLine();
+                    OpenCmd(input);
                 }
                 catch (ProcessException e)
                 {
@@ -69,6 +63,7 @@ namespace InstallerMTW.Processes
                     throw new ProcessException("wrong input, type 'y' to execute the command or 'n' to exit.");
             }
         }
+
 
         /// <summary>
         /// Opens bash on Linux and does the command passed as parameter of the OpenApplication method.
