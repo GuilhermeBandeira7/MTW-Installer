@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Globalization;
-using CliWrap;
-using CliWrap.Buffered;
+
 
 namespace InstallerMTW.Processes
 {
     /// <summary>
-    /// Manager of all commands required to be executed by the Program.
+    /// Initialize linux bash and input and output data from the bash.
     /// </summary>
     public class CommandsManager
     {
@@ -26,13 +24,11 @@ namespace InstallerMTW.Processes
             }
         }
 
-        //this variable indicates if the process is running or not.
-        private bool isRunning;
+        private bool isProcessRunning;
 
         public string linuxBashPath = @"/bin/bash";
         public string windowsCmdPath = "C:\\Windows\\System32\\cmd.exe";
 
-        //variable for linux commands
         #region LinuxCommands
         public string getSigningKey = @"wget https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
             sudo dpkg -i packages-microsoft-prod.deb
@@ -45,62 +41,56 @@ namespace InstallerMTW.Processes
         public CommandsManager()
         {
             systemProcess = new Process();
-            isRunning = false;
+            isProcessRunning = false;
         }
 
         /// <summary>
         /// Opens an OS terminal and executes a specified command.
         /// </summary>
         /// <param name="command">Specified command to execute on the terminal.</param>
-        public void OpenApplication(string operatingSystem, string command)
+        public void OpenCmd(string command)
         {
-            if(isRunning) { systemProcess = new Process(); }
-            using(systemProcess)
-            {
-                systemProcess.StartInfo.FileName = operatingSystem;
-                systemProcess.StartInfo.Arguments = command;
-                systemProcess.StartInfo.UseShellExecute = true;
-                systemProcess.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
-                systemProcess.Start();
-                ProcessIsRunning();
-            }            
+            if (isProcessRunning) { systemProcess = new Process(); }
+            systemProcess.StartInfo.FileName = windowsCmdPath;
+            systemProcess.StartInfo.Arguments = command;
+            systemProcess.StartInfo.UseShellExecute = true;
+            systemProcess.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
+            systemProcess.Start();
+            ProcessIsRunning();
         }
 
-        public async Task OpenTerminal()
+        public void OpenBash(string cmd)
         {
-            var result = await Cli.Wrap("C:\\Users\\MTW\\Desktop\\IntallerMTW\\commands\\commands.bat")
-                .WithWorkingDirectory("C:\\Users\\MTW\\Desktop\\IntallerMTW\\commands")
-                //.WithArguments(new[] { "--version" })
-                .ExecuteBufferedAsync();
-            Console.WriteLine(result.StandardOutput);
+            if (isProcessRunning) { systemProcess = new Process(); }
+            systemProcess.StartInfo.FileName = linuxBashPath;
+            systemProcess.StartInfo.RedirectStandardInput = true;
+            systemProcess.StartInfo.RedirectStandardOutput = true;
+            systemProcess.StartInfo.UseShellExecute = false;
+            systemProcess.StartInfo.Arguments = $"-c \"" + cmd + "\"";
+
+            Console.WriteLine("Bash opened successfully.");
+
+            while(!systemProcess.HasExited)
+            {
+                string input = Console.ReadLine();
+                systemProcess.StandardInput.WriteLine(input);
+                string output = systemProcess.StandardOutput.ReadLine();
+                Console.WriteLine(output);
+            }
         }
 
-        public async Task OpenLinuxTerminal()
+        public void ExecuteBashCommand(string cmd)
         {
-            var result = await Cli.Wrap(@"/home/mwt/MTWInstaller/commands/terminal.sh")
-                .WithWorkingDirectory(@"/home/mwt/MTWInstaller/commands/")
-                .ExecuteBufferedAsync();
-            Console.WriteLine(result.StandardOutput);
-        }
+            if (isProcessRunning) { systemProcess = new Process(); }
+            systemProcess.StartInfo.FileName = linuxBashPath;
+            systemProcess.StartInfo.RedirectStandardInput = true;
+            systemProcess.StartInfo.RedirectStandardOutput = true;
+            systemProcess.StartInfo.UseShellExecute = false;
+            systemProcess.StartInfo.Verb = "runas";
+            systemProcess.StartInfo.Arguments = $"-c \"" + cmd + "\"";
+            systemProcess.Start();
 
-        /// <summary>
-        /// Installs the dotnet runtime
-        /// </summary>
-        /// <param name="command">desired command to be executed on the terminal.</param>
-        public void InstallDotnetRuntime(string command)
-        {
-            try
-            {              
-                OpenApplication(linuxBashPath, command);
-            }
-            catch (ProcessException ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
+            systemProcess.WaitForExit();
         }
 
         /// <summary>
@@ -109,8 +99,8 @@ namespace InstallerMTW.Processes
         /// <returns>True if it's running and False if it's been terminated.</returns>
         public bool ProcessIsRunning()
         {
-            isRunning = !systemProcess.HasExited ? true : false;
-            if(isRunning) { return true; } else{ return false; }
+            isProcessRunning = !systemProcess.HasExited ? true : false;
+            if (isProcessRunning) { return true; } else { return false; }
         }
 
         /// <summary>

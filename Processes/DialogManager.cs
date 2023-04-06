@@ -1,5 +1,4 @@
 ﻿
-using System.ComponentModel;
 using System.Xml.Serialization;
 
 namespace InstallerMTW.Processes
@@ -10,16 +9,17 @@ namespace InstallerMTW.Processes
     public class DialogManager
     {
         public bool running { get; private set; }
-        public CommandsManager terminal { get; private set; }
+        public CommandsManager cmdManager { get; private set; }
+        private string? userInput;
 
         public DialogManager()
         {
-            terminal = new CommandsManager();
+            cmdManager = new CommandsManager();
             running = true;
         }
 
         /// <summary>
-        /// Initialize the dialog with the user and uses the user's input as paramater to CommandsManager methods.
+        /// Initialize the dialog with the user and get the user's input as paramater to CommandsManager methods.
         /// </summary>
         public void StartTerminalDialog()
         {
@@ -29,9 +29,7 @@ namespace InstallerMTW.Processes
             {
                 try
                 {
-                    Console.WriteLine("Open cmd and execute 'dir' command? [y/n]");
-                    string input = Console.ReadLine();
-                    OpenCmd(input);
+                    
                 }
                 catch (ProcessException e)
                 {
@@ -42,63 +40,6 @@ namespace InstallerMTW.Processes
                     Console.WriteLine(e.Message);
                 }
             }
-        }
-
-        /// <summary>
-        /// Opens cmd on windows and does the command passed as parameter of the OpenApplication method.
-        /// </summary>
-        /// <param name="input">Input from the user.</param>
-        /// <exception cref="ProcessException"></exception>
-        private void OpenCmd(string input)
-        {
-            switch (input)
-            {
-                case "y":
-                    //"/k dir" '/k' executes a command and leaves the app open and '/c' executes command e close the app
-                    terminal.OpenApplication(terminal.windowsCmdPath, "/k dir");
-                    terminal.OpenApplication(terminal.windowsCmdPath, "/k echo 'hello world'"); break;
-                case "n":
-                    running = false; break;
-                default:
-                    throw new ProcessException("wrong input, type 'y' to execute the command or 'n' to exit.");
-            }
-        }
-
-
-        /// <summary>
-        /// Opens bash on Linux and does the command passed as parameter of the OpenApplication method.
-        /// </summary>
-        /// <param name="input">Input from the user.</param>
-        /// <exception cref="ProcessException"></exception>
-        private void OpenBash(string input)
-        {
-            switch (input)
-            {
-                case "y":
-                    //"-i ls" '-i' executes a command and leaves the terminal open.
-                    terminal.OpenApplication(terminal.linuxBashPath, "-i ls"); break;
-                case "n":
-                    running = false; break;
-                default:
-                    throw new ProcessException("wrong input, type 'y' to execute the command or 'n' to exit.");
-            }
-        }
-
-        private void InstallDotNet(string input)
-        {
-            switch (input)
-            {
-                case "y":
-                    //"-i ls" '-i' executes a command and leaves the terminal open.
-                    terminal.InstallDotnetRuntime(terminal.getSigningKey);
-                    terminal.InstallDotnetRuntime(terminal.installAspnetcore);
-                    terminal.InstallDotnetRuntime(terminal.installRuntime);
-                    break;
-                case "n":
-                    running = false; break;
-                default:
-                    throw new ProcessException("wrong input, type 'y' to execute the command or 'n' to exit.");
-            }           
         }
     }
 }
