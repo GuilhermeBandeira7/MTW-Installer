@@ -1,10 +1,11 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 
 
 namespace InstallerMTW.Processes
 {
     /// <summary>
-    /// Manager of all commands required to be executed by the Program.
+    /// Initialize linux bash and input and output data from the bash.
     /// </summary>
     public class CommandsManager
     {
@@ -23,13 +24,11 @@ namespace InstallerMTW.Processes
             }
         }
 
-        //this variable indicates if the process is running or not.
-        private bool isRunning;
+        private bool isProcessRunning;
 
-        public string linuxBashPath = @"bin/bash";
+        public string linuxBashPath = @"/bin/bash";
         public string windowsCmdPath = "C:\\Windows\\System32\\cmd.exe";
 
-        //variable for linux commands
         #region LinuxCommands
         public string getSigningKey = @"wget https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
             sudo dpkg -i packages-microsoft-prod.deb
@@ -42,45 +41,56 @@ namespace InstallerMTW.Processes
         public CommandsManager()
         {
             systemProcess = new Process();
-            isRunning = false;
+            isProcessRunning = false;
         }
 
         /// <summary>
         /// Opens an OS terminal and executes a specified command.
         /// </summary>
         /// <param name="command">Specified command to execute on the terminal.</param>
-        public void OpenApplication(string operatingSystem, string command)
+        public void OpenCmd(string command)
         {
-            if(isRunning) { systemProcess = new Process(); }
-            using(systemProcess)
-            {
-                systemProcess.StartInfo.FileName = operatingSystem;
-                systemProcess.StartInfo.Arguments = command;
-                systemProcess.StartInfo.UseShellExecute = true;
-                systemProcess.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
-                systemProcess.Start();
-                ProcessIsRunning();
-            }            
+            if (isProcessRunning) { systemProcess = new Process(); }
+            systemProcess.StartInfo.FileName = windowsCmdPath;
+            systemProcess.StartInfo.Arguments = command;
+            systemProcess.StartInfo.UseShellExecute = true;
+            systemProcess.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
+            systemProcess.Start();
+            ProcessIsRunning();
         }
 
-        /// <summary>
-        /// Installs the dotnet runtime
-        /// </summary>
-        /// <param name="command">desired command to be executed on the terminal.</param>
-        public void InstallDotnetRuntime(string command)
+        public void OpenBash(string cmd)
         {
-            try
-            {              
-                OpenApplication(linuxBashPath, command);
-            }
-            catch (ProcessException ex)
+            if (isProcessRunning) { systemProcess = new Process(); }
+            systemProcess.StartInfo.FileName = linuxBashPath;
+            systemProcess.StartInfo.RedirectStandardInput = true;
+            systemProcess.StartInfo.RedirectStandardOutput = true;
+            systemProcess.StartInfo.UseShellExecute = false;
+            systemProcess.StartInfo.Arguments = $"-c \"" + cmd + "\"";
+
+            Console.WriteLine("Bash opened successfully.");
+
+            while(!systemProcess.HasExited)
             {
-                Console.WriteLine(ex.Message);
+                string input = Console.ReadLine();
+                systemProcess.StandardInput.WriteLine(input);
+                string output = systemProcess.StandardOutput.ReadLine();
+                Console.WriteLine(output);
             }
-            catch(Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
+        }
+
+        public void ExecuteBashCommand(string cmd)
+        {
+            if (isProcessRunning) { systemProcess = new Process(); }
+            systemProcess.StartInfo.FileName = linuxBashPath;
+            systemProcess.StartInfo.RedirectStandardInput = true;
+            systemProcess.StartInfo.RedirectStandardOutput = true;
+            systemProcess.StartInfo.UseShellExecute = false;
+            systemProcess.StartInfo.Verb = "runas";
+            systemProcess.StartInfo.Arguments = $"-c \"" + cmd + "\"";
+            systemProcess.Start();
+
+            systemProcess.WaitForExit();
         }
 
         /// <summary>
@@ -89,8 +99,8 @@ namespace InstallerMTW.Processes
         /// <returns>True if it's running and False if it's been terminated.</returns>
         public bool ProcessIsRunning()
         {
-            isRunning = !systemProcess.HasExited ? true : false;
-            if(isRunning) { return true; } else{ return false; }
+            isProcessRunning = !systemProcess.HasExited ? true : false;
+            if (isProcessRunning) { return true; } else { return false; }
         }
 
         /// <summary>
