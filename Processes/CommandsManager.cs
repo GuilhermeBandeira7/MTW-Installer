@@ -29,15 +29,6 @@ namespace InstallerMTW.Processes
         public string linuxBashPath = @"/bin/bash";
         public string windowsCmdPath = "C:\\Windows\\System32\\cmd.exe";
 
-        #region LinuxCommands
-        public string getSigningKey = @"wget https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
-            sudo dpkg -i packages-microsoft-prod.deb
-            rm packages-microsoft-prod.deb";
-        public string installAspnetcore = @"sudo apt-get update && \ 
-            sudo apt-get install -y aspnetcore-runtime-7.0";
-        public string installRuntime = @"sudo apt-get install -y dotnet-runtime-7.0";
-        #endregion
-
         public CommandsManager()
         {
             systemProcess = new Process();
@@ -59,32 +50,10 @@ namespace InstallerMTW.Processes
             ProcessIsRunning();
         }
 
-        public void OpenBash(string cmd)
-        {
-            if (isProcessRunning) { systemProcess = new Process(); }
-            systemProcess.StartInfo.FileName = linuxBashPath;
-            systemProcess.StartInfo.RedirectStandardInput = true;
-            systemProcess.StartInfo.RedirectStandardOutput = true;
-            systemProcess.StartInfo.UseShellExecute = false;
-            systemProcess.StartInfo.Arguments = $"-c \"" + cmd + "\"";
-
-            Console.WriteLine("Bash opened successfully.");
-
-            while(!systemProcess.HasExited)
-            {
-                string input = Console.ReadLine();
-                systemProcess.StandardInput.WriteLine(input);
-                string output = systemProcess.StandardOutput.ReadLine();
-                Console.WriteLine(output);
-            }
-        }
-
         public void ExecuteBashCommand(string cmd)
         {
             if (isProcessRunning) { systemProcess = new Process(); }
             systemProcess.StartInfo.FileName = linuxBashPath;
-            systemProcess.StartInfo.RedirectStandardInput = true;
-            systemProcess.StartInfo.RedirectStandardOutput = true;
             systemProcess.StartInfo.UseShellExecute = false;
             systemProcess.StartInfo.Verb = "runas";
             systemProcess.StartInfo.Arguments = $"-c \"" + cmd + "\"";

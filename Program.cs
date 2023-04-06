@@ -3,12 +3,12 @@ using System.Diagnostics;
 
 namespace InstallerMTW
 {
-    internal class Program
+    class Program
     {
         static void Main(string[] args)
         {
-            DialogManager runApp = new DialogManager();
-            runApp.StartTerminalDialog();
+            DialogManager dialogManager = new DialogManager();
+            dialogManager.StartTerminalDialog();
 
             Console.WriteLine("Press any key to exit.");
             Console.ReadKey();

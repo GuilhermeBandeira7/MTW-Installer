@@ -1,4 +1,4 @@
-﻿
+﻿using System;
 using System.Xml.Serialization;
 
 namespace InstallerMTW.Processes
@@ -9,7 +9,7 @@ namespace InstallerMTW.Processes
     public class DialogManager
     {
         public bool running { get; private set; }
-        public CommandsManager cmdManager { get; private set; }
+        private CommandsManager cmdManager { get; set; }
         private string? userInput;
 
         public DialogManager()
@@ -28,8 +28,13 @@ namespace InstallerMTW.Processes
             while (running)
             {
                 try
-                {
-                    
+                {                   
+                    Console.Write("Type in the command:");
+                    userInput = Console.ReadLine();
+                    if(userInput == "exit"){
+                        break;
+                    }
+                    cmdManager.ExecuteBashCommand(userInput);
                 }
                 catch (ProcessException e)
                 {
