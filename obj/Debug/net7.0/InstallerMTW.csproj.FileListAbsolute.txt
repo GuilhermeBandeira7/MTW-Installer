@@ -13,5 +13,3 @@ C:\Users\MTW\Desktop\IntallerMTW\InstallerMTW\obj\Debug\net7.0\refint\InstallerM
 C:\Users\MTW\Desktop\IntallerMTW\InstallerMTW\obj\Debug\net7.0\InstallerMTW.pdb
 C:\Users\MTW\Desktop\IntallerMTW\InstallerMTW\obj\Debug\net7.0\InstallerMTW.genruntimeconfig.cache
 C:\Users\MTW\Desktop\IntallerMTW\InstallerMTW\obj\Debug\net7.0\ref\InstallerMTW.dll
-C:\Users\MTW\Desktop\IntallerMTW\InstallerMTW\bin\Debug\net7.0\CliWrap.dll
-C:\Users\MTW\Desktop\IntallerMTW\InstallerMTW\obj\Debug\net7.0\InstallerMTW.csproj.CopyComplete
