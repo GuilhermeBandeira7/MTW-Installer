@@ -8,7 +8,8 @@ namespace InstallerMTW
         static void Main(string[] args)
         {
             DialogManager dialogManager = new DialogManager();
-            dialogManager.StartTerminalDialog();
+            //dialogManager.StartTerminalDialog();
+            dialogManager.cmdManager.BashRedirectIO("echo 'hello'");
 
             Console.WriteLine("Press any key to exit.");
             Console.ReadKey();
