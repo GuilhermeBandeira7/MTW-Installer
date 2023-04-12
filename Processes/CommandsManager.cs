@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 
 
 namespace InstallerMTW.Processes
@@ -26,40 +27,77 @@ namespace InstallerMTW.Processes
 
         private bool isProcessRunning;
 
-        public string linuxBashPath = @"/bin/bash";
-        public string windowsCmdPath = "C:\\Windows\\System32\\cmd.exe";
-
         public CommandsManager()
         {
             systemProcess = new Process();
-            isProcessRunning = false;
-        }
-
-        /// <summary>
-        /// Opens an OS terminal and executes a specified command.
-        /// </summary>
-        /// <param name="command">Specified command to execute on the terminal.</param>
-        public void OpenCmd(string command)
-        {
-            if (isProcessRunning) { systemProcess = new Process(); }
-            systemProcess.StartInfo.FileName = windowsCmdPath;
-            systemProcess.StartInfo.Arguments = command;
-            systemProcess.StartInfo.UseShellExecute = true;
-            systemProcess.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
-            systemProcess.Start();
-            ProcessIsRunning();
+            isProcessRunning = true;
         }
 
         public void ExecuteBashCommand(string cmd)
         {
-            if (isProcessRunning) { systemProcess = new Process(); }
-            systemProcess.StartInfo.FileName = linuxBashPath;
+            if (!isProcessRunning) { systemProcess = new Process(); }
+            systemProcess.StartInfo.FileName = "/bin/bash";
             systemProcess.StartInfo.UseShellExecute = false;
             systemProcess.StartInfo.Verb = "runas";
-            systemProcess.StartInfo.Arguments = $"-c \"" + cmd + "\"";
+            systemProcess.StartInfo.Arguments = $"-c " + cmd;
             systemProcess.Start();
 
             systemProcess.WaitForExit();
+        }
+
+
+        public void ExecuteInstallationScript(string installCmd)
+        {
+            string path = Directory.GetCurrentDirectory();
+            string target = path + "\\Scripts";
+
+            switch (installCmd)
+            {
+                case "1": 
+                    ExecuteBashCommand(target + "\\dotnet-install.sh"); break;
+
+                case "2": 
+                    ExecuteBashCommand(target + "\\nginx-install.sh"); break;
+                
+                case "3": 
+                    ExecuteBashCommand(target + "\\sqlserver-install.sh");break;      
+            }
+        }
+
+
+        public async Task BashRedirectIO(string cmd)
+        {
+            systemProcess.StartInfo.FileName = $"/bin/bash";
+            systemProcess.StartInfo.UseShellExecute = false;
+            systemProcess.StartInfo.Arguments = $"-c " + cmd;
+            //systemProcess.StartInfo.CreateNoWindow = true;
+            systemProcess.StartInfo.RedirectStandardOutput = true;
+            //systemProcess.StartInfo.RedirectStandardInput = true;
+            //systemProcess.StartInfo.RedirectStandardError = true;
+            systemProcess.Start();
+            isProcessRunning = true;
+            //systemProcess.ErrorDataReceived += SystemProcess_ErrorDataReceived;          
+
+            StreamReader reader = systemProcess.StandardOutput;
+            await RedirectBashDataToConsole(reader);
+
+            systemProcess.WaitForExit();
+        }
+
+        private async Task RedirectBashDataToConsole(StreamReader reader)
+        {
+            string output = string.Empty;
+            while (!reader.EndOfStream)
+            {
+                output = await reader.ReadLineAsync();
+                Console.WriteLine(output);
+            }
+        }
+
+        private void SystemProcess_ErrorDataReceived(object sender, DataReceivedEventArgs e)
+        {
+           string output = e.Data;
+            Console.WriteLine(output);
         }
 
         /// <summary>
@@ -80,6 +118,7 @@ namespace InstallerMTW.Processes
         {
             if (systemProcess != null)
             {
+                isProcessRunning = false;
                 systemProcess.Kill();
             }
             else

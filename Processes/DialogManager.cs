@@ -8,14 +8,13 @@ namespace InstallerMTW.Processes
     /// </summary>
     public class DialogManager
     {
-        public bool running { get; private set; }
-        private CommandsManager cmdManager { get; set; }
-        private string? userInput;
+        public bool dialogIsRunning { get; private set; }
+        public CommandsManager cmdManager { get; set; }
 
         public DialogManager()
         {
             cmdManager = new CommandsManager();
-            running = true;
+            dialogIsRunning = true;
         }
 
         /// <summary>
@@ -25,16 +24,17 @@ namespace InstallerMTW.Processes
         {
             Console.WriteLine("Welcome to MTW Installer!\n");
 
-            while (running)
+            while (dialogIsRunning)
             {
                 try
-                {                   
-                    Console.Write("Type in the command:");
-                    userInput = Console.ReadLine();
-                    if(userInput == "exit"){
-                        break;
+                {
+                    Console.WriteLine("Select the desired action: \n[1] " +
+                        ".NET 7 SDK \n[2] Nginx \n[3] SQL Server 2017");
+                    string input = Console.ReadLine().ToString();
+                    if(input == "1")
+                    {
+                        cmdManager.ExecuteInstallationScript("");
                     }
-                    cmdManager.ExecuteBashCommand(userInput);
                 }
                 catch (ProcessException e)
                 {
