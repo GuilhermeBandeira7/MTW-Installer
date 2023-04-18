@@ -56,48 +56,26 @@ namespace InstallerMTW.Processes {
 
         public void BashRedirectIO(string cmd) {
             using (systemProcess) {
-                //systemProcess.StartInfo.FileName = "C:\\WINDOWS\\system32\\cmd.exe";
-                //systemProcess.StartInfo.Arguments = "/k " + cmd;
-                systemProcess.StartInfo.FileName = "/bin/bash";
-                systemProcess.StartInfo.Arguments = "-c \"" + cmd + "\"";
+                systemProcess.StartInfo.FileName = "C:\\WINDOWS\\system32\\cmd.exe";
+                systemProcess.StartInfo.Arguments = "/k " + cmd;
+                //systemProcess.StartInfo.FileName = "/bin/bash";
+                //systemProcess.StartInfo.Arguments = "-c \"" + cmd + "\"";
                 systemProcess.StartInfo.CreateNoWindow = true;
                 systemProcess.StartInfo.UseShellExecute = false;
                 systemProcess.StartInfo.RedirectStandardOutput = true;
                 systemProcess.StartInfo.RedirectStandardInput = true;
-                systemProcess.OutputDataReceived += OnDataReceived;
-                systemProcess.ErrorDataReceived += OnErrorDataReceived;
+                systemProcess.StartInfo.RedirectStandardError = true;
+
+                systemProcess.OutputDataReceived += new DataReceivedEventHandler((sender, e) =>
+                {
+                    if (!string.IsNullOrEmpty(e.Data)) {
+                        Console.WriteLine(e.Data);
+                    }
+                });
 
                 systemProcess.Start();
                 systemProcess.BeginOutputReadLine();
-                systemProcess.BeginErrorReadLine();
-                RedirectInput();
-            }
-        }
-
-        public void OnDataReceived(object sender, DataReceivedEventArgs e) {
-            if (e.Data != null) {              
-                Console.WriteLine(e.Data);
-            }
-        }
-
-        public void OnErrorDataReceived(object sender, DataReceivedEventArgs e) {
-            if (e.Data != null) {
-                Console.WriteLine(e.Data);
-            }
-        }
-
-        private void PrintOutput() {
-            while (true) {
-                string? readText = systemProcess.StandardOutput.ReadLine();
-                if (!string.IsNullOrEmpty(readText))
-                    Console.WriteLine(readText);
-            }
-        }
-
-        private void RedirectInput() {
-            while (!systemProcess.HasExited) {
-                string input = Console.ReadLine();
-                systemProcess.StandardInput.WriteLine(input);
+                systemProcess.WaitForExit();
             }
         }
 
