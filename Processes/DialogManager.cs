@@ -18,7 +18,8 @@ namespace InstallerMTW.Processes {
         /// Initialize the dialog with the user and get the user's input as paramater to CommandsManager methods.
         /// </summary>
         public void StartTerminalDialog() {
-            CheckOSVersion();
+            //CheckOSVersion();
+            cmdManager.BashRedirectIO("lsb_release -a");
 
             while (dialogIsRunning) {
                 try {
@@ -48,7 +49,7 @@ namespace InstallerMTW.Processes {
         }
 
         private void CheckOSVersion() {
-            Console.WriteLine("Welcome to MTW Installer!\n "
+            Console.WriteLine(" Welcome to MTW Installer!\n "
                             + "Make sure that you're running this app on Linux Ubuntu 18.04."
                             + "Your Current Linux distribution is: ");
             cmdManager.ExecuteBashCommand("lsb_release -a \n");
