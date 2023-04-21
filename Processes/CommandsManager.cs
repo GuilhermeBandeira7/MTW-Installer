@@ -41,7 +41,24 @@ namespace InstallerMTW.Processes
         systemProcess.StartInfo.UseShellExecute = false;
         systemProcess.StartInfo.Verb = "runas";
         systemProcess.StartInfo.Arguments = $"-c " + cmd;
+        systemProcess.StartInfo.CreateNoWindow = true;
+        systemProcess.StartInfo.RedirectStandardInput = true;
+        systemProcess.StartInfo.RedirectStandardOutput = true;
+        //StreamWriter writer = systemProcess.StandardInput;
+
+        systemProcess.OutputDataReceived += new DataReceivedEventHandler((sender, e) =>
+        {
+          if (!string.IsNullOrEmpty(e.Data))
+          {
+            Console.WriteLine(e.Data);
+          }
+
+        });
+
         systemProcess.Start();
+        systemProcess.BeginOutputReadLine();
+        systemProcess.StandardInput.WriteLine("Y");
+        systemProcess.WaitForExit();
         isProcessRunning = false;
       }
     }
@@ -50,6 +67,7 @@ namespace InstallerMTW.Processes
     public void ExecuteInstallationScript(string installCmd)
     {
       string scriptPath = "~/Projects/mtwinstaller/MTW-Installer/Scripts";
+      //SetFilesAsEx("cd " + scriptPath);
 
       switch (installCmd)
       {
@@ -62,14 +80,16 @@ namespace InstallerMTW.Processes
       }
     }
 
-    public string GetScriptsDirectory()
+    private void SetFilesAsEx(string dirPath)
     {
-      string debugPath = Directory.GetCurrentDirectory();
-      string scriptsDirPath = debugPath.Substring(1, debugPath.LastIndexOf("InstallerMTW" + 12)) + "/Scripts";
-      return scriptsDirPath;
+      ExecuteCmd(dirPath);
+      ExecuteCmd("pwd");
+      ExecuteCmd("sudo chmod +x nginx-install.sh");
+      ExecuteCmd("sudo chmod +x mqtt-install.sh");
+      ExecuteCmd("sudo chmod +x sqlserver-install.sh");
     }
 
-    public void CheckOSVersion(string cmd)
+    public void ExecuteCmd(string cmd)
     {
       if (!isProcessRunning) { systemProcess = new Process(); }
       using (systemProcess)
