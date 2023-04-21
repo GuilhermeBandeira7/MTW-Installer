@@ -24,7 +24,7 @@ namespace InstallerMTW.Processes
                     + "Make sure that you're running this app on Linux Ubuntu 18.04. \n"
                     + "Your Current Linux distribution is: ");
       System.Console.WriteLine();
-      cmdManager.CheckOSVersion("lsb_release -a \n");
+      cmdManager.ExecuteCmd("lsb_release -a \n");
 
 
       try
@@ -33,7 +33,7 @@ namespace InstallerMTW.Processes
             "MQTT \n[2] Nginx \n[3] SQL Server 2017");
 
         //string input = Console.ReadLine().ToString(); ;
-        string input = "1";
+        string input = Console.ReadLine().ToString();
 
         switch (input)
         {
