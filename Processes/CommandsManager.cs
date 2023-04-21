@@ -32,6 +32,22 @@ namespace InstallerMTW.Processes
       isProcessRunning = true;
     }
 
+    public void InstallSqlServer(string cmd)
+    {
+      if (!isProcessRunning) { systemProcess = new Process(); isProcessRunning = true; }
+      using (systemProcess)
+      {
+        systemProcess.StartInfo.FileName = "/bin/bash";
+        systemProcess.StartInfo.UseShellExecute = false;
+        systemProcess.StartInfo.Verb = "runas";
+        systemProcess.StartInfo.Arguments = $"-c " + cmd;
+        systemProcess.StartInfo.CreateNoWindow = true;
+        systemProcess.Start();
+        systemProcess.WaitForExit();
+        isProcessRunning = false;
+      }
+    }
+
     public void ExecuteBashCommand(string cmd)
     {
       if (!isProcessRunning) { systemProcess = new Process(); isProcessRunning = true; }
@@ -46,6 +62,7 @@ namespace InstallerMTW.Processes
         systemProcess.StartInfo.RedirectStandardOutput = true;
         //StreamWriter writer = systemProcess.StandardInput;
 
+        string output = String.Empty;
         systemProcess.OutputDataReceived += new DataReceivedEventHandler((sender, e) =>
         {
           if (!string.IsNullOrEmpty(e.Data))
@@ -57,12 +74,15 @@ namespace InstallerMTW.Processes
 
         systemProcess.Start();
         systemProcess.BeginOutputReadLine();
-        systemProcess.StandardInput.WriteLine("Y");
+        if (cmd.Equals("1") || cmd.Equals("2"))
+        {
+          systemProcess.StandardInput.WriteLine("Y");
+        }
+
         systemProcess.WaitForExit();
         isProcessRunning = false;
       }
     }
-
 
     public void ExecuteInstallationScript(string installCmd)
     {
@@ -76,7 +96,7 @@ namespace InstallerMTW.Processes
         case "2":
           ExecuteBashCommand(scriptPath + "/nginx-install.sh"); break;
         case "3":
-          ExecuteBashCommand(scriptPath + "/sqlserver-install.sh"); break;
+          InstallSqlServer(scriptPath + "/sqlserver-script.sh"); break;
       }
     }
 
