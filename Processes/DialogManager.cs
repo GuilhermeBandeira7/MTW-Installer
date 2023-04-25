@@ -9,10 +9,12 @@ namespace InstallerMTW.Processes
   public class DialogManager
   {
     private CommandsManager cmdManager { get; set; }
+    private bool runDialog;
 
     public DialogManager()
     {
       cmdManager = new CommandsManager();
+      runDialog = true;
     }
 
     /// <summary>
@@ -29,22 +31,28 @@ namespace InstallerMTW.Processes
 
       try
       {
-        Console.WriteLine("Select the desired package to install: \n[1] " +
-            "MQTT \n[2] Nginx \n[3] SQL Server 2017");
-
-        //string input = Console.ReadLine().ToString(); ;
-        string input = Console.ReadLine().ToString();
-
-        switch (input)
+        while (runDialog == true)
         {
-          case "1":
-            cmdManager.ExecuteInstallationScript(input); break;
-          case "2":
-            cmdManager.ExecuteInstallationScript(input); break;
-          case "3":
-            cmdManager.ExecuteInstallationScript(input); break;
+          Console.WriteLine("Select the desired package to install: \n[1] " +
+           "MQTT \n[2] Nginx \n[3] SQL Server 2017 \n");
+          System.Console.WriteLine("type 'exit' to exit");
 
-          default: Console.WriteLine("Option not found."); break;
+          string input = Console.ReadLine().ToString();
+
+          switch (input)
+          {
+            case "1":
+              cmdManager.ExecuteInstallationScript(input); break;
+            case "2":
+              cmdManager.ExecuteInstallationScript(input); break;
+            case "3":
+              cmdManager.ExecuteInstallationScript(input); break;
+            case "exit":
+              break;
+
+            default: Console.WriteLine("Option not found."); break;
+          }
+
         }
       }
       catch (ProcessException e)

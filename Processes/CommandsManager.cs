@@ -60,7 +60,6 @@ namespace InstallerMTW.Processes
         systemProcess.StartInfo.CreateNoWindow = true;
         systemProcess.StartInfo.RedirectStandardInput = true;
         systemProcess.StartInfo.RedirectStandardOutput = true;
-        //StreamWriter writer = systemProcess.StandardInput;
 
         string output = String.Empty;
         systemProcess.OutputDataReceived += new DataReceivedEventHandler((sender, e) =>
@@ -74,11 +73,7 @@ namespace InstallerMTW.Processes
 
         systemProcess.Start();
         systemProcess.BeginOutputReadLine();
-        if (cmd.Equals("1") || cmd.Equals("2"))
-        {
-          systemProcess.StandardInput.WriteLine("Y");
-        }
-
+        systemProcess.StandardInput.WriteLine("Y");
         systemProcess.WaitForExit();
         isProcessRunning = false;
       }
@@ -86,8 +81,10 @@ namespace InstallerMTW.Processes
 
     public void ExecuteInstallationScript(string installCmd)
     {
-      string scriptPath = "~/Projects/mtwinstaller/MTW-Installer/Scripts";
-      //SetFilesAsEx("cd " + scriptPath);
+      //string scriptPath = "~/Projects/mtwinstaller/MTW-Installer/Scripts";
+      string scriptPath = Directory.GetCurrentDirectory() + "/Scripts";
+      // IEnumerable<string> scripts = GetScripDirectory(Directory.GetCurrentDirectory());
+      // SetFilesAsEx(scripts.First());
 
       switch (installCmd)
       {
@@ -100,13 +97,17 @@ namespace InstallerMTW.Processes
       }
     }
 
-    private void SetFilesAsEx(string dirPath)
+    private IEnumerable<string> GetScripDirectory(string filePath)
     {
-      ExecuteCmd(dirPath);
-      ExecuteCmd("pwd");
-      ExecuteCmd("sudo chmod +x nginx-install.sh");
-      ExecuteCmd("sudo chmod +x mqtt-install.sh");
-      ExecuteCmd("sudo chmod +x sqlserver-install.sh");
+      return Directory.EnumerateFiles(filePath, "*.sh", SearchOption.AllDirectories);
+    }
+
+    private void SetFilesAsEx(string filePath)
+    {
+      if (!isProcessRunning) { systemProcess = new Process(); isProcessRunning = true; }
+      systemProcess.StartInfo.FileName = "/bin/bash";
+      systemProcess.StartInfo.Verb = "runas";
+      systemProcess.StartInfo.Arguments = $"chmod +x {filePath}";
     }
 
     public void ExecuteCmd(string cmd)
