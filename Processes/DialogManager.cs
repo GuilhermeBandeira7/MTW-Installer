@@ -34,30 +34,26 @@ namespace InstallerMTW.Processes
         while (runDialog == true)
         {
           Console.WriteLine("Select the desired package to install: \n[1] " +
-           "MQTT \n[2] Nginx \n[3] SQL Server 2017 \n");
+           "MQTT \n[2] Nginx \n[3] SQL Server 2017 \n[4] Mssql-Tools \n[5] Restore MasterServer "
+           + "\n[6] Restore TmHub \n[7]GIT");
           System.Console.WriteLine("type 'exit' to exit");
 
           string input = Console.ReadLine().ToString();
 
-          switch (input)
+          if (input == "exit")
           {
-            case "1":
-              cmdManager.ExecuteInstallationScript(input); break;
-            case "2":
-              cmdManager.ExecuteInstallationScript(input); break;
-            case "3":
-              cmdManager.ExecuteInstallationScript(input); break;
-            case "exit":
-              break;
-
-            default: Console.WriteLine("Option not found."); break;
+            runDialog = false;
+          }
+          else
+          {
+            cmdManager.ExecuteInstallationScript(input);
           }
 
         }
       }
       catch (ProcessException e)
       {
-        Console.WriteLine(e.Message);
+        string error = e.Message;
       }
       catch (Exception e)
       {
