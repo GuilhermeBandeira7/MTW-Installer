@@ -135,6 +135,8 @@ namespace InstallerMTW.Processes
           RestoreDatabase(scriptPath, "5"); break;
         case "6":
           RestoreDatabase(scriptPath, "6"); break;
+        case "7":
+          ExecuteBashCommand(scriptPath + "/git-install.sh"); break;
         default:
           System.Console.WriteLine("option not found."); break;
       }

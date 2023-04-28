@@ -35,7 +35,7 @@ namespace InstallerMTW.Processes
         {
           Console.WriteLine("Select the desired package to install: \n[1] " +
            "MQTT \n[2] Nginx \n[3] SQL Server 2017 \n[4] Mssql-Tools \n[5] Restore MasterServer "
-           + "\n[6] Restore TmHub \n[7]GIT");
+           + "\n[6] Restore TmHub \n[7]Git");
           System.Console.WriteLine("type 'exit' to exit");
 
           string input = Console.ReadLine().ToString();
