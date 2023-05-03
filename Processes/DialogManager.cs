@@ -4,9 +4,9 @@ using System.Xml.Serialization;
 namespace InstallerMTW.Processes
 {
   /// <summary>
-  /// Manage the dialog with the user, get the user input and creates a CommandsManager instance to execute the commands.
+  /// Manage the dialog with the user, get the user input and creates a CommandsManager instance to carry out commands.
   /// </summary>
-  public class DialogManager
+  public sealed class DialogManager
   {
     private CommandsManager cmdManager { get; set; }
     private bool runDialog;
