@@ -6,23 +6,14 @@ using System.Text;
 namespace InstallerMTW.Processes
 {
   /// <summary>
-  /// Initialize linux bash and input and output data from the bash.
+  /// Manage and execute bash commands on Linux.
   /// </summary>
   public class CommandsManager
   {
     /// <summary>
-    /// Initializes a process on the current Operating System.
+    /// Initializes a process on Linux.
     /// </summary>
     private Process systemProcess { get; set; }
-
-    public Process SystemProcess
-    {
-      get
-      {
-        if (systemProcess == null) { throw new ProcessException("The systemProcess has not been initialied."); }
-        else { return systemProcess; }
-      }
-    }
 
     private bool isProcessRunning;
 
@@ -116,10 +107,7 @@ namespace InstallerMTW.Processes
 
     public void ExecuteInstallationScript(string installCmd)
     {
-      //string scriptPath = "~/Projects/mtwinstaller/MTW-Installer/Scripts";
       string scriptPath = Directory.GetCurrentDirectory() + "/Scripts";
-      // IEnumerable<string> scripts = GetScripDirectory(Directory.GetCurrentDirectory());
-      // SetFilesAsEx(scripts.First());
 
       switch (installCmd)
       {
@@ -137,6 +125,9 @@ namespace InstallerMTW.Processes
           RestoreDatabase(scriptPath, "6"); break;
         case "7":
           ExecuteBashCommand(scriptPath + "/git-install.sh"); break;
+        case "8":
+          ExecuteCmd(scriptPath + "/nodejsSixteen-install.sh"); break;
+
         default:
           System.Console.WriteLine("option not found."); break;
       }
