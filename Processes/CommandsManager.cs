@@ -6,14 +6,21 @@ using System.Text;
 namespace InstallerMTW.Processes
 {
   /// <summary>
-  /// Manage and execute bash commands on Linux.
+  /// Initialize linux bash and input and output data from the bash.
   /// </summary>
   public class CommandsManager
   {
-    /// <summary>
-    /// Initializes a process on Linux.
-    /// </summary>
+
     private Process systemProcess { get; set; }
+
+    public Process SystemProcess
+    {
+      get
+      {
+        if (systemProcess == null) { throw new ProcessException("The systemProcess has not been initialized."); }
+        else { return systemProcess; }
+      }
+    }
 
     private bool isProcessRunning;
 
@@ -23,6 +30,10 @@ namespace InstallerMTW.Processes
       isProcessRunning = true;
     }
 
+    /// <summary>
+    /// Runs a script to install the sql server express 2017.
+    /// </summary>
+    /// <param name="cmd"></param>
     public void InstallSqlServer(string cmd)
     {
       if (!isProcessRunning) { systemProcess = new Process(); isProcessRunning = true; }
@@ -39,6 +50,10 @@ namespace InstallerMTW.Processes
       }
     }
 
+    /// <summary>
+    /// Automatically run a set of commands that require 'yes/no' input.
+    /// </summary>
+    /// <param name="cmd"></param>
     public void ExecuteBashCommand(string cmd)
     {
       if (!isProcessRunning) { systemProcess = new Process(); isProcessRunning = true; }
@@ -70,6 +85,11 @@ namespace InstallerMTW.Processes
       }
     }
 
+    /// <summary>
+    /// Restore a database carrying out scripts.
+    /// </summary>
+    /// <param name="path"></param>
+    /// <param name="scriptBackup"></param>
     public void RestoreDatabase(string path, string scriptBackup)
     {
       if (!isProcessRunning) { systemProcess = new Process(); isProcessRunning = true; }
@@ -105,6 +125,12 @@ namespace InstallerMTW.Processes
       }
     }
 
+    string var = "git clone https://fersilva1995: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@github.com/fersilva1995/ApiClientMtwServer.git";
+
+    /// <summary>
+    /// Redirects the user input to the appropiate method. 
+    /// </summary>
+    /// <param name="installCmd">Input of the selected operation.</param>
     public void ExecuteInstallationScript(string installCmd)
     {
       string scriptPath = Directory.GetCurrentDirectory() + "/Scripts";
@@ -127,17 +153,32 @@ namespace InstallerMTW.Processes
           ExecuteBashCommand(scriptPath + "/git-install.sh"); break;
         case "8":
           ExecuteCmd(scriptPath + "/nodejsSixteen-install.sh"); break;
-
+        case "9":
+          GitClone("git clone https://fersilva1995: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@github.com/fersilva1995/ApiClientMtwServer.git");
+          GitClone("git clone https://fersilva1995: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@github.com/fersilva1995/ApiMtwServer.git");
+          GitClone("git clone https://fersilva1995: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@github.com/fersilva1995/EntityMtwServer.git");
+          GitClone("git clone https://fersilva1995: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@github.com/fersilva1995/UtilsMtwServer.git");
+          GitClone("git clone https://fersilva1995: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@github.com/fersilva1995/MTWServerVue.git");
+          break;
         default:
           System.Console.WriteLine("option not found."); break;
       }
     }
 
+    /// <summary>
+    /// Goes to the directory where .sh files are located.
+    /// </summary>
+    /// <param name="filePath"></param>
+    /// <returns></returns>
     private IEnumerable<string> GetScripDirectory(string filePath)
     {
       return Directory.EnumerateFiles(filePath, "*.sh", SearchOption.AllDirectories);
     }
 
+    /// <summary>
+    /// Automatically set a file as executable.
+    /// </summary>
+    /// <param name="filePath"></param>
     private void SetFilesAsEx(string filePath)
     {
       if (!isProcessRunning) { systemProcess = new Process(); isProcessRunning = true; }
@@ -146,12 +187,17 @@ namespace InstallerMTW.Processes
       systemProcess.StartInfo.Arguments = $"chmod +x {filePath}";
     }
 
+    /// <summary>
+    /// Run a command on the bash
+    /// </summary>
+    /// <param name="cmd"></param>
     public void ExecuteCmd(string cmd)
     {
       if (!isProcessRunning) { systemProcess = new Process(); }
       using (systemProcess)
       {
         systemProcess.StartInfo.FileName = "/bin/bash";
+        systemProcess.StartInfo.Verb = "runas";
         systemProcess.StartInfo.Arguments = "-c \"" + cmd + "\"";
         systemProcess.StartInfo.CreateNoWindow = true;
         systemProcess.StartInfo.UseShellExecute = false;
@@ -171,6 +217,46 @@ namespace InstallerMTW.Processes
         systemProcess.BeginOutputReadLine();
         systemProcess.WaitForExit();
         isProcessRunning = false;
+      }
+    }
+
+    public void GitClone(string cmd)
+    {
+      string filePath = Directory.GetCurrentDirectory() + "/Code";
+      ChangeDirectory(filePath);
+      if (!isProcessRunning) { systemProcess = new Process(); }
+      using (systemProcess)
+      {
+        systemProcess.StartInfo.FileName = "/bin/bash";
+        systemProcess.StartInfo.Verb = "runas";
+        systemProcess.StartInfo.Arguments = "-c \"" + cmd + "\"";
+        systemProcess.StartInfo.CreateNoWindow = true;
+        systemProcess.StartInfo.UseShellExecute = false;
+        systemProcess.StartInfo.RedirectStandardOutput = true;
+        systemProcess.StartInfo.RedirectStandardInput = true;
+        systemProcess.StartInfo.RedirectStandardError = true;
+
+        systemProcess.OutputDataReceived += new DataReceivedEventHandler((sender, e) =>
+        {
+          if (!string.IsNullOrEmpty(e.Data))
+          {
+            Console.WriteLine(e.Data);
+          }
+        });
+
+        systemProcess.Start();
+        systemProcess.BeginOutputReadLine();
+        systemProcess.WaitForExit();
+        isProcessRunning = false;
+      }
+    }
+
+    public void ChangeDirectory(string filePath)
+    {
+      if (Path.Exists(filePath))
+      {
+        Directory.SetCurrentDirectory(filePath);
+        System.Console.WriteLine("the current directory is " + Directory.GetCurrentDirectory());
       }
     }
   }
