@@ -5,7 +5,7 @@ VisualStudioVersion = 17.4.33213.308
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InstallerMTW", "InstallerMTW.csproj", "{942A0E54-6823-4EC2-AB9C-F9299EC5A9B8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EntityMtwServer", "..\..\..\MTWServerApi\EntityMtwServer\EntityMtwServer.csproj", "{76A6C149-F9EC-4618-AB39-020D1FD86275}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EntityMtwServer", "/home/mtw/Projects/mtwinstaller/Code/EntityMtwServer/EntityMtwServer.csproj", "{76A6C149-F9EC-4618-AB39-020D1FD86275}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
