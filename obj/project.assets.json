@@ -5992,8 +5992,8 @@
     },
     "EntityMtwServer/1.0.0": {
       "type": "project",
-      "path": "../../../MTWServerApi/EntityMtwServer/EntityMtwServer.csproj",
-      "msbuildProject": "../../../MTWServerApi/EntityMtwServer/EntityMtwServer.csproj"
+      "path": "../Code/EntityMtwServer/EntityMtwServer.csproj",
+      "msbuildProject": "../Code/EntityMtwServer/EntityMtwServer.csproj"
     }
   },
   "projectFileDependencyGroups": {
@@ -6007,42 +6007,32 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\MTW\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "/home/mtw/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\MTW\\Desktop\\workspace\\IntallerMTW\\MTW-Installer\\InstallerMTW.csproj",
+      "projectUniqueName": "/home/mtw/Projects/mtwinstaller/MTW-Installer/InstallerMTW.csproj",
       "projectName": "InstallerMTW",
-      "projectPath": "C:\\Users\\MTW\\Desktop\\workspace\\IntallerMTW\\MTW-Installer\\InstallerMTW.csproj",
-      "packagesPath": "C:\\Users\\MTW\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\MTW\\Desktop\\workspace\\IntallerMTW\\MTW-Installer\\obj\\",
+      "projectPath": "/home/mtw/Projects/mtwinstaller/MTW-Installer/InstallerMTW.csproj",
+      "packagesPath": "/home/mtw/.nuget/packages/",
+      "outputPath": "/home/mtw/Projects/mtwinstaller/MTW-Installer/obj/",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\MTW\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "/home/mtw/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net6.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Program Files\\dotnet\\library-packs": {},
-        "C:\\Users\\MTW\\Documents\\Projetos\\PacoteNuget2": {},
-        "http://packagesource": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net6.0": {
           "targetAlias": "net6.0",
           "projectReferences": {
-            "C:\\Users\\MTW\\Desktop\\MTWServerApi\\EntityMtwServer\\EntityMtwServer.csproj": {
-              "projectPath": "C:\\Users\\MTW\\Desktop\\MTWServerApi\\EntityMtwServer\\EntityMtwServer.csproj"
+            "/home/mtw/Projects/mtwinstaller/Code/EntityMtwServer/EntityMtwServer.csproj": {
+              "projectPath": "/home/mtw/Projects/mtwinstaller/Code/EntityMtwServer/EntityMtwServer.csproj"
             }
           }
         }
@@ -6094,16 +6084,8 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.102\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/7.0.203/RuntimeIdentifierGraph.json"
       }
     }
-  },
-  "logs": [
-    {
-      "code": "NU1803",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "You are running the 'restore' operation with an 'HTTP' source, 'http://packagesource'. Non-HTTPS access will be removed in a future version. Consider migrating to an 'HTTPS' source."
-    }
-  ]
+  }
 }

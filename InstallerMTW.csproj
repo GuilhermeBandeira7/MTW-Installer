@@ -22,7 +22,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\MTWServerApi\EntityMtwServer\EntityMtwServer.csproj" />
+    <ProjectReference Include="/home/mtw/Projects/mtwinstaller/Code/EntityMtwServer/EntityMtwServer.csproj" />
   </ItemGroup>
-
 </Project>
