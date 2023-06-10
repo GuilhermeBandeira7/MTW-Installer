@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Xml.Serialization;
+using EntityMtwServer.Entities;
 
 namespace InstallerMTW.Processes
 {
@@ -10,6 +11,9 @@ namespace InstallerMTW.Processes
   {
     private CommandsManager cmdManager { get; set; }
     private bool runDialog;
+
+    //range variable holds the range of RTSPs selected by the user.
+    public static List<string> range = new List<string>();
 
     public DialogManager()
     {
@@ -60,6 +64,38 @@ namespace InstallerMTW.Processes
         Console.WriteLine(e.Message);
       }
 
+    }
+
+    public static void RangeDialog(List<Equipment> list)
+    {
+      System.Console.WriteLine("Type the  start of the range: ");
+      int start = int.Parse(Console.ReadLine());
+      System.Console.WriteLine("Type the end of the range: ");
+      int end = int.Parse(Console.ReadLine());
+
+      SelectedRange(start, end, list);
+    }
+
+    public static void SelectedRange(int start, int end, List<Equipment> equipments)
+    {
+      for (int cont = start; cont <= end; cont++)
+      {
+        range.Add(equipments[cont].PrimaryRtsp);
+      }
+    }
+
+    public static bool CreateRangeOfCameras()
+    {
+      System.Console.WriteLine("Do you wish to create a new service for each rtsp in the selected range?[y/n]  ");
+      string response = Console.ReadLine().ToString();
+      if (response == "y")
+      {
+        return true;
+      }
+      else
+      {
+        return false;
+      }
     }
   }
 }
