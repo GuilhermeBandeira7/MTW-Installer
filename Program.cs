@@ -1,6 +1,6 @@
 ﻿
 using EntityMtwServer;
-using InstallerMTW.Processes;
+using InstallerMTW.Managers;
 
 namespace InstallerMTW
 {
@@ -8,9 +8,9 @@ namespace InstallerMTW
   {
     static void Main(string[] args)
     {
-      MasterServerContext masterServerContext = new MasterServerContext();
-      Console.WriteLine(masterServerContext.Users.Where(u => u.Id == 1).First().Name);
-      Console.ReadLine();
+      //MasterServerContext masterServerContext = new MasterServerContext();
+      //Console.WriteLine(masterServerContext.Users.Where(u => u.Id == 1).First().Name);
+      //Console.ReadLine();
       DialogManager dialogManager = new DialogManager();
       dialogManager.StartTerminalDialog();
     }

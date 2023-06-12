@@ -16,12 +16,15 @@
   <ItemGroup>
     <PackageReference Include="FluentResults" Version="3.15.2" />
     <PackageReference Include="M2MqttDotnetCore" Version="1.1.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.5" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageReference Include="System.Diagnostics.Process" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="/home/mtw/Projects/mtwinstaller/Code/EntityMtwServer/EntityMtwServer.csproj" />
+    <Reference Include="EntityMtwServer">
+      <HintPath>..\..\..\MTWServerApi\ApiClientMtwServer\bin\Debug\net6.0\EntityMtwServer.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>
