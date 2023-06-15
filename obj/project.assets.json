@@ -6012,11 +6012,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/mtw/Projects/mtwinstaller/MTW-Installer/InstallerMTW.csproj",
+      "projectUniqueName": "/home/mtw/Projects/mtwinstaller/InstallerMTW.csproj",
       "projectName": "InstallerMTW",
-      "projectPath": "/home/mtw/Projects/mtwinstaller/MTW-Installer/InstallerMTW.csproj",
+      "projectPath": "/home/mtw/Projects/mtwinstaller/InstallerMTW.csproj",
       "packagesPath": "/home/mtw/.nuget/packages/",
-      "outputPath": "/home/mtw/Projects/mtwinstaller/MTW-Installer/obj/",
+      "outputPath": "/home/mtw/Projects/mtwinstaller/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/home/mtw/.nuget/NuGet/NuGet.Config"
@@ -6031,8 +6031,8 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "projectReferences": {
-            "/home/mtw/Projects/mtwinstaller/Code/EntityMtwServer/EntityMtwServer.csproj": {
-              "projectPath": "/home/mtw/Projects/mtwinstaller/Code/EntityMtwServer/EntityMtwServer.csproj"
+            "/home/mtw/Projects/Code/EntityMtwServer/EntityMtwServer.csproj": {
+              "projectPath": "/home/mtw/Projects/Code/EntityMtwServer/EntityMtwServer.csproj"
             }
           }
         }
@@ -6084,7 +6084,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/7.0.203/RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/7.0.302/RuntimeIdentifierGraph.json"
       }
     }
   }

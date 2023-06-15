@@ -7,15 +7,18 @@ namespace InstallerMTW.Processes
   {
     private static MasterServerContext _context = new MasterServerContext();
 
+    //Holds all equipments in the database
+    public static List<Equipment> EquipmentList = new List<Equipment>();
+
     public static void GetPrimaryRtsp()
     {
-      List<Equipment> listID = new List<Equipment>();
+
       foreach (var rtsp in _context.Equipments)
       {
         if (rtsp != null)
         {
           System.Console.WriteLine(rtsp.Id + " " + rtsp.PrimaryRtsp);
-          listID.Add(rtsp);
+          EquipmentList.Add(rtsp);
         }
         else
         {
@@ -26,8 +29,33 @@ namespace InstallerMTW.Processes
       string response = Console.ReadLine();
       if (response == "y")
       {
-        DialogManager.RangeDialog(listID);
+        DialogManager.RangeDialog(EquipmentList);
       }
+    }
+
+    public static Equipment CreateEquipment()
+    {
+      System.Console.WriteLine("Equipment name: ");
+      string name = Console.ReadLine().ToString();
+      System.Console.WriteLine("user: ");
+      string user = Console.ReadLine().ToString();
+      System.Console.WriteLine("Password: ");
+      string password = Console.ReadLine().ToString();
+      System.Console.WriteLine("Camera IP: ");
+      string ip = Console.ReadLine().ToString();
+      System.Console.WriteLine("Primary RTSP: ");
+      string primaryRtsp = Console.ReadLine().ToString();
+
+      Equipment newCamera = new Equipment()
+      {
+        Name = name,
+        User = user,
+        Password = password,
+        Ip = ip,
+        PrimaryRtsp = primaryRtsp
+      };
+      _context.Add(newCamera);
+      return newCamera;
     }
   }
 }

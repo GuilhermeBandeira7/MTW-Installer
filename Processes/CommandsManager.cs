@@ -1,5 +1,6 @@
 ﻿//using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using EntityMtwServer;
+using EntityMtwServer.Entities;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -27,13 +28,13 @@ namespace InstallerMTW.Processes
 
     private bool isProcessRunning;
 
-    private List<string> SelectedRange;
+    private List<Equipment> SelectedRange;
 
     public CommandsManager()
     {
       systemProcess = new Process();
       isProcessRunning = true;
-      SelectedRange = new List<string>();
+      SelectedRange = new List<Equipment>();
     }
 
     /// <summary>
@@ -54,11 +55,6 @@ namespace InstallerMTW.Processes
         systemProcess.WaitForExit();
         isProcessRunning = false;
       }
-    }
-
-    public void TestFunction(int a = 0, int b = 0)
-    {
-
     }
 
     /// <summary>
@@ -279,48 +275,6 @@ namespace InstallerMTW.Processes
       }
     }
 
-    /// <summary>
-    /// Initializes the recording process of a camera.
-    /// </summary>
-    /// <exception cref="ProcessException"></exception>
-    public void StartRecording()
-    {
-      //Reading the RTSP 
-      Console.WriteLine("Type the camera IP: ");
-      string cameraIP = String.Empty;
-      cameraIP = Console.ReadLine().ToString();
-      //Using the input string to configure the string to record and save recording files
-      string recordString = $"transport tcp - allowed_media_types video - i \"rtsp://admin:admin@{cameraIP}:8554\" -vcodec" +
-                      "copy -map 0 -f segment -segment_time 20 -strftime 1 /home/records/%Y%m%d%H%M%S.mkv";
-      if (cameraIP != String.Empty && cameraIP != null)
-      {
-        ChangeAndCreateDirectory("/home", "records");
-        IEnumerable<string> filesList = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), "*.sh", SearchOption.AllDirectories);
-        int numberFile = ManageFileEnumeration() + 1; //get the amount of files inside records to name the next file to be added accordingly
-        string fileName = $"record_{numberFile}.sh";
-        if (!filesList.Contains(fileName))
-        {
-          using (FileStream newFile = new FileStream(fileName, FileMode.CreateNew))
-          {
-            using (StreamWriter writer = new StreamWriter(newFile))
-            {
-              writer.WriteLine(recordString);
-              writer.Flush(); //Despeja o buffer para o stream
-            };
-          };
-          CreateService($"record_{numberFile}");
-        }
-        else
-        {
-          File.WriteAllText("/home/record/" + fileName, recordString);
-        }
-      }
-      else
-      {
-        throw new ProcessException("Camera IP cannot be null.");
-      }
-    }
-
     public void RecordOptions()
     {
       Console.Clear();
@@ -332,7 +286,7 @@ namespace InstallerMTW.Processes
         {
           case "1":
             DbManager.GetPrimaryRtsp();
-            SelectedRange = DialogManager.range;
+            //SelectedRange = DialogManager.range;
             break;
           case "2":
             CreateService(); break;
@@ -348,15 +302,29 @@ namespace InstallerMTW.Processes
 
     public void AlterRtsp()
     {
-      Console.WriteLine("type the camera IP to alter: ");
-      string cameraIPtoChange = Console.ReadLine().ToString();
-      Console.WriteLine("type the new camera IP: ");
-      string newCameraIP = Console.ReadLine().ToString();
+      System.Console.WriteLine("Type the camera ID to alter: ");
+      long id = long.Parse(Console.ReadLine());
+      System.Console.WriteLine("Type the new Camera IP: ");
+      string ip = Console.ReadLine().ToString();
+
+      foreach (Equipment camera in SelectedRange)
+      {
+        if (camera.Id == id)
+        {
+          camera.Ip = ip;
+        }
+      }
+
+      AlterRtspOnDirectories(id, ip);
+    }
+
+    private void AlterRtspOnDirectories(long id, string ip)
+    {
       ChangeDirectory("/home/records");
-      IEnumerable<string> file = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), $"*{cameraIPtoChange}.sh", SearchOption.AllDirectories);
+      IEnumerable<string> file = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), $"*record_{id}.sh", SearchOption.AllDirectories);
       if (file.Any())
       {
-        OperationRtspProcess(file.First(), operation.Alter, newCameraIP);
+        OperationRtspProcess(file.First(), operation.Alter, ip);
       }
       else
       {
@@ -365,10 +333,10 @@ namespace InstallerMTW.Processes
       ChangeDirectory("/etc/systemd/system");
       file.First().Remove(0);
 
-      file = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), $"*{cameraIPtoChange}.service", SearchOption.AllDirectories);
+      file = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), $"*record_{id}.service", SearchOption.AllDirectories);
       if (file.Any())
       {
-        OperationRtspProcess(file.First(), operation.Alter, newCameraIP);
+        OperationRtspProcess(file.First(), operation.Alter, ip);
       }
       else
       {
@@ -378,8 +346,22 @@ namespace InstallerMTW.Processes
 
     public void RemoveRstp()
     {
-      Console.WriteLine("type the camera IP to delete: ");
-      string cameraIP = Console.ReadLine().ToString();
+      if (!DialogManager.RemoveRange())
+      {
+        Console.WriteLine("type the camera IP to delete: ");
+        string cameraIP = Console.ReadLine().ToString();
+        RemoveSelected(cameraIP);
+
+      }
+      else
+      {
+        RemoveRange();
+      }
+
+    }
+
+    private void RemoveSelected(string cameraIP)
+    {
       ChangeDirectory("/home/records");
       IEnumerable<string> file = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), $"*{cameraIP}.sh", SearchOption.AllDirectories);
       if (file.Any())
@@ -402,16 +384,28 @@ namespace InstallerMTW.Processes
       {
         throw new ProcessException("Any service file with the specified IP was found.");
       }
-
     }
 
-    public enum operation
+    private void RemoveRange()
     {
-      Delete = 0,
-      Alter = 1
+      if (SelectedRange.Count > 0)
+      {
+        foreach (Equipment camera in SelectedRange)
+        {
+          ChangeDirectory("/home/record");
+          OperationRtspProcess($"record_{camera.Id}.sh", operation.Delete, string.Empty);
+
+          ChangeDirectory("/etc/systemd/system");
+          OperationRtspProcess($"record_{camera.Id}.service", operation.Delete, string.Empty);
+        }
+      }
+      else
+      {
+        throw new ProcessException("The range of selected cameras is empty.");
+      }
     }
 
-    private void OperationRtspProcess(string shFileName, operation op, string newFileName)
+    private void OperationRtspProcess(string fileName, operation op, string newFileName)
     {
       using (systemProcess)
       {
@@ -419,11 +413,11 @@ namespace InstallerMTW.Processes
         systemProcess.StartInfo.Verb = "runas";
         if (op == operation.Delete)
         {
-          systemProcess.StartInfo.Arguments = $"-c sudo rm {shFileName}";
+          systemProcess.StartInfo.Arguments = $"-c sudo rm {fileName}";
         }
         else
         {
-          systemProcess.StartInfo.Arguments = $"-c sudo mv {shFileName} {newFileName}";
+          systemProcess.StartInfo.Arguments = $"-c sudo mv {fileName} {newFileName}";
         }
         systemProcess.StartInfo.CreateNoWindow = true;
         systemProcess.StartInfo.UseShellExecute = false;
@@ -438,17 +432,18 @@ namespace InstallerMTW.Processes
     {
       if (DialogManager.CreateRangeOfCameras())
       {
+        SelectedRange = DialogManager.NewSelectedRange;
         CreateRangeOfRecordService();
       }
       else
       {
-        Console.WriteLine("Type the camera IP: ");
-        string cameraIP = Console.ReadLine().ToString();
-        if (cameraIP != null)
+
+        Equipment camera = DbManager.CreateEquipment();
+        if (camera.PrimaryRtsp != null)
         {
-          string recordString = $"transport tcp - allowed_media_types video - i \"rtsp://admin:admin@{cameraIP}:8554\" -vcodec" +
+          string recordString = $"transport tcp - allowed_media_types video - i \"rtsp://admin:admin@{camera.Id}:8554\" -vcodec" +
                      "copy -map 0 -f segment -segment_time 20 -strftime 1 /home/records/camera/%Y%m%d%H%M%S.mkv";
-          CreateShAndService(cameraIP, recordString);
+          CreateShAndService(camera, recordString);
         }
         else
         {
@@ -463,7 +458,7 @@ namespace InstallerMTW.Processes
       {
         for (int cont = 0; cont <= SelectedRange.Count; cont++)
         {
-          string recordString = $"transport tcp - allowed_media_types video - i \"rtsp://admin:admin@{SelectedRange.ElementAt(cont)}:8554\" -vcodec" +
+          string recordString = $"transport tcp - allowed_media_types video - i \"rtsp://admin:admin@{SelectedRange.ElementAt(cont).Id}:8554\" -vcodec" +
                    "copy -map 0 -f segment -segment_time 20 -strftime 1 /home/records/camera/%Y%m%d%H%M%S.mkv";
           CreateShAndService(SelectedRange.ElementAt(cont), recordString);
         }
@@ -474,11 +469,11 @@ namespace InstallerMTW.Processes
       }
     }
 
-    private void CreateShAndService(string cameraIP, string recordString)
+    private void CreateShAndService(Equipment camera, string recordString)
     {
       ChangeAndCreateDirectory("/home", "records");
       IEnumerable<string> filesList = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), "*.sh", SearchOption.AllDirectories);
-      string fileName = $"record_{cameraIP}.sh";
+      string fileName = $"record_{camera.Id}.sh";
       if (!filesList.Contains(fileName))
       {
         using (FileStream newFile = new FileStream(fileName, FileMode.CreateNew))
@@ -489,7 +484,7 @@ namespace InstallerMTW.Processes
             writer.Flush(); //Despeja o buffer para o stream
           };
         };
-        CreateService($"record_{cameraIP}");
+        CreateService($"record_{camera.Id}");
       }
       else
       {
@@ -584,5 +579,11 @@ namespace InstallerMTW.Processes
 
       SetFilesAsEx(Directory.GetCurrentDirectory() + $"/{serviceName}.service");
     }
+  }
+
+  public enum operation
+  {
+    Delete = 0,
+    Alter = 1
   }
 }

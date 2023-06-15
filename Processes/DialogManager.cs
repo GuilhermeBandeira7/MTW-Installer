@@ -13,7 +13,7 @@ namespace InstallerMTW.Processes
     private bool runDialog;
 
     //range variable holds the range of RTSPs selected by the user.
-    public static List<string> range = new List<string>();
+    public static List<Equipment> NewSelectedRange = new List<Equipment>();
 
     public DialogManager()
     {
@@ -80,7 +80,8 @@ namespace InstallerMTW.Processes
     {
       for (int cont = start; cont <= end; cont++)
       {
-        range.Add(equipments[cont].PrimaryRtsp);
+        //range.Add(equipments[cont].PrimaryRtsp);
+        NewSelectedRange.Add(equipments[cont]);
       }
     }
 
@@ -89,6 +90,20 @@ namespace InstallerMTW.Processes
       System.Console.WriteLine("Do you wish to create a new service for each rtsp in the selected range?[y/n]  ");
       string response = Console.ReadLine().ToString();
       if (response == "y")
+      {
+        return true;
+      }
+      else
+      {
+        return false;
+      }
+    }
+
+    public static bool RemoveRange()
+    {
+      System.Console.WriteLine("Remove all cameras in the selected Range?[y/n]");
+      string response = Console.ReadLine().ToUpper();
+      if (response == "Y")
       {
         return true;
       }
