@@ -492,24 +492,6 @@ namespace InstallerMTW.Processes
       }
     }
 
-    public int ManageFileEnumeration()
-    {
-      if (Directory.Exists("/home/records"))
-      {
-        int totalFiles = 0;
-        IEnumerable<string> qntFile = Directory.EnumerateFiles(Directory.GetCurrentDirectory()); //current file has to be records
-        foreach (var file in qntFile)
-        {
-          totalFiles++;
-        }
-        return totalFiles;
-      }
-      else
-      {
-        throw new ProcessException("could not access /home/records");
-      }
-    }
-
     public void CreateService(string fileName)
     {
       ChangeDirectory("/etc/systemd/system");

@@ -32,7 +32,6 @@ namespace InstallerMTW.Processes
       System.Console.WriteLine();
       cmdManager.ExecuteCmd("lsb_release -a \n");
 
-
       try
       {
         while (runDialog == true)

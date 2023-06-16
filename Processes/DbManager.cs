@@ -25,12 +25,6 @@ namespace InstallerMTW.Processes
           throw new ProcessException("Coundn't find any rtsp on the database.");
         }
       }
-      System.Console.WriteLine("Select range of ID's to operate?[y/n]");
-      string response = Console.ReadLine();
-      if (response == "y")
-      {
-        DialogManager.RangeDialog(EquipmentList);
-      }
     }
 
     public static Equipment CreateEquipment()
