@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace InstallerMTW.Processes
+namespace InstallerMTW.Managers
 {
     public class ProcessException: Exception
     {
