@@ -62,7 +62,6 @@ namespace InstallerMTW.Processes
       {
         Console.WriteLine(e.Message);
       }
-
     }
 
     public static void RangeDialog(List<Equipment> list)

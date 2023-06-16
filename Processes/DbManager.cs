@@ -12,7 +12,6 @@ namespace InstallerMTW.Processes
 
     public static void GetPrimaryRtsp()
     {
-
       foreach (var rtsp in _context.Equipments)
       {
         if (rtsp != null)
@@ -29,26 +28,12 @@ namespace InstallerMTW.Processes
 
     public static Equipment CreateEquipment()
     {
-      System.Console.WriteLine("Equipment name: ");
-      string name = Console.ReadLine().ToString();
-      System.Console.WriteLine("user: ");
-      string user = Console.ReadLine().ToString();
-      System.Console.WriteLine("Password: ");
-      string password = Console.ReadLine().ToString();
       System.Console.WriteLine("Camera IP: ");
       string ip = Console.ReadLine().ToString();
-      System.Console.WriteLine("Primary RTSP: ");
-      string primaryRtsp = Console.ReadLine().ToString();
-
       Equipment newCamera = new Equipment()
       {
-        Name = name,
-        User = user,
-        Password = password,
-        Ip = ip,
-        PrimaryRtsp = primaryRtsp
+        Ip = ip
       };
-      _context.Add(newCamera);
       return newCamera;
     }
   }

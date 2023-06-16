@@ -298,6 +298,10 @@ namespace InstallerMTW.Processes
             break;
         }
       }
+      else
+      {
+        throw new ProcessException("Invalid option.");
+      }
     }
 
     public void AlterRtsp()
@@ -364,7 +368,7 @@ namespace InstallerMTW.Processes
     {
       ChangeDirectory("/home/records");
       IEnumerable<string> file = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), $"*{cameraIP}.sh", SearchOption.AllDirectories);
-      if (file.Any())
+      if (file.Any() && file.Count() == 1)
       {
         OperationRtspProcess(file.First(), operation.Delete, string.Empty);
       }
@@ -376,7 +380,7 @@ namespace InstallerMTW.Processes
       file.First().Remove(0);
 
       file = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), $"*{cameraIP}.service", SearchOption.AllDirectories);
-      if (file.Any())
+      if (file.Any() && file.Count() == 1)
       {
         OperationRtspProcess(file.First(), operation.Delete, string.Empty);
       }
@@ -407,6 +411,7 @@ namespace InstallerMTW.Processes
 
     private void OperationRtspProcess(string fileName, operation op, string newFileName)
     {
+      if (!isProcessRunning) { systemProcess = new Process(); }
       using (systemProcess)
       {
         systemProcess.StartInfo.FileName = "/bin/bash";
@@ -432,14 +437,14 @@ namespace InstallerMTW.Processes
     {
       if (DialogManager.CreateRangeOfCameras())
       {
+        DialogManager.RangeDialog(DbManager.EquipmentList);
         SelectedRange = DialogManager.NewSelectedRange;
         CreateRangeOfRecordService();
       }
       else
       {
-
         Equipment camera = DbManager.CreateEquipment();
-        if (camera.PrimaryRtsp != null)
+        if (camera.Ip != null)
         {
           string recordString = $"transport tcp - allowed_media_types video - i \"rtsp://admin:admin@{camera.Id}:8554\" -vcodec" +
                      "copy -map 0 -f segment -segment_time 20 -strftime 1 /home/records/camera/%Y%m%d%H%M%S.mkv";
@@ -454,7 +459,7 @@ namespace InstallerMTW.Processes
 
     private void CreateRangeOfRecordService()
     {
-      if (SelectedRange != null)
+      if (SelectedRange != null && SelectedRange.Count > 0)
       {
         for (int cont = 0; cont <= SelectedRange.Count; cont++)
         {
@@ -489,6 +494,26 @@ namespace InstallerMTW.Processes
       else
       {
         File.WriteAllText("/home/record/" + fileName, recordString);
+      }
+    }
+
+    private void RealoadAndStartService(string serviceName)
+    {
+      ChangeDirectory("/etc/systemd/system");
+
+      if (!isProcessRunning) { systemProcess = new Process(); }
+      using (systemProcess)
+      {
+        systemProcess.StartInfo.FileName = "/bin/bash";
+        systemProcess.StartInfo.Verb = "runas";
+        systemProcess.StartInfo.ArgumentList.Add($"-c systemctl daemon-reload");
+        systemProcess.StartInfo.ArgumentList.Add($"-c systemctl start {serviceName}");
+        systemProcess.StartInfo.CreateNoWindow = true;
+        systemProcess.StartInfo.UseShellExecute = false;
+
+        systemProcess.Start();
+        systemProcess.WaitForExit();
+        isProcessRunning = false;
       }
     }
 
