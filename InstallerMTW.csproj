@@ -23,8 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="EntityMtwServer">
-      <HintPath>..\..\..\MTWServerApi\ApiClientMtwServer\bin\Debug\net6.0\EntityMtwServer.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="/home/mtw/Projects/Code/EntityMtwServer/EntityMtwServer.csproj" />
   </ItemGroup>
 </Project>

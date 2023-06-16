@@ -6034,11 +6034,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\MTW\\Desktop\\workspace\\IntallerMTW\\MTW-Installer\\InstallerMTW.csproj",
+      "projectUniqueName": "/home/mtw/Projects/mtwinstaller/InstallerMTW.csproj",
       "projectName": "InstallerMTW",
-      "projectPath": "C:\\Users\\MTW\\Desktop\\workspace\\IntallerMTW\\MTW-Installer\\InstallerMTW.csproj",
-      "packagesPath": "C:\\Users\\MTW\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\MTW\\Desktop\\workspace\\IntallerMTW\\MTW-Installer\\obj\\",
+      "projectPath": "/home/mtw/Projects/mtwinstaller/InstallerMTW.csproj",
+      "packagesPath": "/home/mtw/.nuget/packages/",
+      "outputPath": "/home/mtw/Projects/mtwinstaller/obj/",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -6062,8 +6062,8 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "projectReferences": {
-            "C:\\Users\\MTW\\Desktop\\MTWServerApi\\EntityMtwServer\\EntityMtwServer.csproj": {
-              "projectPath": "C:\\Users\\MTW\\Desktop\\MTWServerApi\\EntityMtwServer\\EntityMtwServer.csproj"
+            "/home/mtw/Projects/Code/EntityMtwServer/EntityMtwServer.csproj": {
+              "projectPath": "/home/mtw/Projects/Code/EntityMtwServer/EntityMtwServer.csproj"
             }
           }
         }
@@ -6119,7 +6119,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.102\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/7.0.302/RuntimeIdentifierGraph.json"
       }
     }
   },
