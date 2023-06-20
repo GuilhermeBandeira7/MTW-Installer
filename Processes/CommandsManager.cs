@@ -161,8 +161,8 @@ namespace InstallerMTW.Processes
           GitClone("git clone https://fersilva1995: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@github.com/fersilva1995/ApiClientMtwServer.git");
           GitClone("git clone https://fersilva1995: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@github.com/fersilva1995/ApiMtwServer.git");
           GitClone("git clone https://fersilva1995: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@github.com/fersilva1995/EntityMtwServer.git");
-          GitClone("git clone https://fersilva1995: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@github.com/fersilva1995/UtilsMtwServer.git");
-          GitClone("git clone https://fersilva1995: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@github.com/fersilva1995/MTWServerVue.git"); break;
+          GitClone("git clone https://fersilva1995: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@github.com/fersilva1995/Utils.git");
+          GitClone("git clone https://fersilva1995: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@github.com/fersilva1995/MTWServer.git"); break;
         case "10":
           RecordOptions();
           break;
@@ -244,10 +244,32 @@ namespace InstallerMTW.Processes
       }
     }
 
+    public void GoToPriorDirectory()
+    {
+      if (!isProcessRunning) { systemProcess = new Process(); }
+      using (systemProcess)
+      {
+        systemProcess.StartInfo.FileName = "/bin/bash";
+        systemProcess.StartInfo.Verb = "runas";
+        systemProcess.StartInfo.Arguments = "-c \"cd ..";
+        systemProcess.StartInfo.CreateNoWindow = true;
+        systemProcess.StartInfo.UseShellExecute = false;
+
+        systemProcess.Start();
+        systemProcess.WaitForExit();
+        isProcessRunning = false;
+      }
+    }
+
     public void GitClone(string cmd)
     {
-      string filePath = Directory.GetCurrentDirectory() + "/Code";
-      ChangeDirectory(filePath);
+      GoToPriorDirectory();
+      if (!Directory.Exists("Code"))
+      {
+        ExecuteCmd("mkdir Code");
+      }
+      ChangeDirectory("Code");
+
       if (!isProcessRunning) { systemProcess = new Process(); }
       using (systemProcess)
       {
@@ -437,7 +459,9 @@ namespace InstallerMTW.Processes
     {
       if (DialogManager.CreateRangeOfCameras())
       {
+        //Creates a range of cameras from the selected range of cameras on the database
         DialogManager.RangeDialog(DbManager.EquipmentList);
+        //SelectedRange variable receives the created range of cameras
         SelectedRange = DialogManager.NewSelectedRange;
         CreateRangeOfRecordService();
       }
@@ -558,6 +582,10 @@ namespace InstallerMTW.Processes
       if (Directory.Exists(filePath))
       {
         Directory.SetCurrentDirectory(filePath);
+      }
+      else
+      {
+        throw new ProcessException("The file path does not exist.");
       }
     }
 

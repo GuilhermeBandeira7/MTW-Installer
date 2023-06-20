@@ -181,3 +181,9 @@ C:/Users/MTW/Desktop/workspace/IntallerMTW/MTW-Installer/bin/Debug/net6.0/runtim
 /home/mtw/Projects/mtwinstaller/obj/Debug/net6.0/InstallerMTW.pdb
 /home/mtw/Projects/mtwinstaller/obj/Debug/net6.0/InstallerMTW.genruntimeconfig.cache
 /home/mtw/Projects/mtwinstaller/obj/Debug/net6.0/ref/InstallerMTW.dll
+/home/mtw/Projects/mtwinstaller/bin/Debug/net6.0/Microsoft.Extensions.Caching.Abstractions.dll
+/home/mtw/Projects/mtwinstaller/bin/Debug/net6.0/Microsoft.Extensions.DependencyInjection.dll
+/home/mtw/Projects/mtwinstaller/bin/Debug/net6.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll
+/home/mtw/Projects/mtwinstaller/bin/Debug/net6.0/Microsoft.Extensions.Logging.dll
+/home/mtw/Projects/mtwinstaller/bin/Debug/net6.0/Microsoft.Extensions.Options.dll
+/home/mtw/Projects/mtwinstaller/bin/Debug/net6.0/Microsoft.Extensions.Primitives.dll
