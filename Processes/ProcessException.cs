@@ -5,12 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace InstallerMTW.Managers
+namespace InstallerMTW.Processes
 {
-    public class ProcessException: Exception
+  public class ProcessException : Exception
+  {
+    public ProcessException(string msg) : base(msg)
     {
-        public ProcessException(string msg) : base (msg)
-        {
-        }
     }
+  }
 }

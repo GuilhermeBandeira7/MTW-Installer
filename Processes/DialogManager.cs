@@ -32,7 +32,6 @@ namespace InstallerMTW.Processes
       System.Console.WriteLine();
       cmdManager.ExecuteCmd("lsb_release -a \n");
 
-
       try
       {
         while (runDialog == true)
@@ -63,7 +62,6 @@ namespace InstallerMTW.Processes
       {
         Console.WriteLine(e.Message);
       }
-
     }
 
     public static void RangeDialog(List<Equipment> list)
@@ -78,10 +76,12 @@ namespace InstallerMTW.Processes
 
     public static void SelectedRange(int start, int end, List<Equipment> equipments)
     {
+      System.Console.WriteLine("Elements of the selected range: ");
       for (int cont = start; cont <= end; cont++)
       {
         //range.Add(equipments[cont].PrimaryRtsp);
         NewSelectedRange.Add(equipments[cont]);
+        System.Console.WriteLine(equipments[cont].PrimaryRtsp);
       }
     }
 

@@ -1,2 +1,2 @@
-cd /home/mtw/Projects/mtwinstaller/MTW-Installer/Code/MTWServer/mtwserver
+cd /home/mtw/Projects/Code/MTWServer/mtwserver
 npm run serve
