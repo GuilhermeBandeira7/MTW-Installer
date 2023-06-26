@@ -10,31 +10,35 @@ namespace InstallerMTW.Processes
     //Holds all equipments in the database
     public static List<Equipment> EquipmentList = new List<Equipment>();
 
-    public static void GetPrimaryRtsp()
+    public static void GetAllAvailableEquipments()
     {
       foreach (var rtsp in _context.Equipments)
       {
-        if (rtsp != null)
+        if (rtsp.PrimaryRtsp != String.Empty)
         {
-          System.Console.WriteLine(rtsp.Id + " " + rtsp.PrimaryRtsp);
           EquipmentList.Add(rtsp);
-        }
-        else
-        {
-          throw new ProcessException("Coundn't find any rtsp on the database.");
         }
       }
     }
 
-    public static Equipment CreateEquipment()
+    public static void GetPrimaryRtsp()
     {
-      System.Console.WriteLine("Camera IP: ");
-      string ip = Console.ReadLine().ToString();
-      Equipment newCamera = new Equipment()
+      foreach (var rtsp in EquipmentList)
       {
-        Ip = ip
-      };
-      return newCamera;
+        if (rtsp.PrimaryRtsp != String.Empty)
+        {
+          System.Console.WriteLine(rtsp.Id + " " + rtsp.PrimaryRtsp);
+        }
+
+        if (EquipmentList.Count == 0)
+        {
+          throw new ProcessException("Could not find any equipment on the database.");
+        }
+      }
+      if (DialogManager.CreateRangeOfCameras())
+      {
+        DialogManager.RangeDialog(EquipmentList);
+      }
     }
   }
 }
