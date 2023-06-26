@@ -101,19 +101,18 @@ namespace InstallerMTW.Processes
       if (!isProcessRunning) { systemProcess = new Process(); isProcessRunning = true; }
       using (systemProcess)
       {
-        Process process = new Process();
-        process.StartInfo.FileName = "/opt/mssql-tools/bin/sqlcmd";
+        systemProcess.StartInfo.FileName = "/opt/mssql-tools/bin/sqlcmd";
         systemProcess.StartInfo.Verb = "runas";
         if (scriptBackup == "5")
         {
-          process.StartInfo.Arguments = "-S localhost -U sa -P Senha@mtw -i " + path + "/masterserver.sql";
+          systemProcess.StartInfo.Arguments = "-S localhost -U sa -P Senha@mtw -i " + path + "/masterserver.sql";
         }
         else if (scriptBackup == "6")
         {
-          process.StartInfo.Arguments = "-S localhost -U sa -P Senha@mtw -i " + path + "/tmhub.sql";
+          systemProcess.StartInfo.Arguments = "-S localhost -U sa -P Senha@mtw -i " + path + "/tmhub.sql";
         }
-        process.StartInfo.UseShellExecute = false;
-        process.StartInfo.CreateNoWindow = true;
+        systemProcess.StartInfo.UseShellExecute = false;
+        systemProcess.StartInfo.CreateNoWindow = true;
         systemProcess.StartInfo.RedirectStandardOutput = true;
 
         systemProcess.OutputDataReceived += new DataReceivedEventHandler((sender, e) =>
@@ -124,9 +123,9 @@ namespace InstallerMTW.Processes
           }
         });
 
-        process.Start();
+        systemProcess.Start();
         systemProcess.BeginOutputReadLine();
-        process.WaitForExit();
+        systemProcess.WaitForExit();
         isProcessRunning = false;
       }
     }
@@ -137,37 +136,49 @@ namespace InstallerMTW.Processes
     /// <param name="installCmd">Input of the selected operation.</param>
     public void RedirectCommand(string installCmd)
     {
-      string scriptPath = Directory.GetCurrentDirectory() + "/Scripts";
-      Console.Clear();
-      switch (installCmd)
+      try
       {
-        case "1":
-          ExecuteBashCommand(scriptPath + "/mqtt-install.sh"); break;
-        case "2":
-          ExecuteBashCommand(scriptPath + "/nginx-install.sh"); break;
-        case "3":
-          InstallSqlServer(scriptPath + "/sqlserver-script.sh"); break;
-        case "4":
-          ExecuteBashCommand(scriptPath + "/mssqltools-install.sh"); break;
-        case "5":
-          RestoreDatabase(scriptPath, "5"); break;
-        case "6":
-          RestoreDatabase(scriptPath, "6"); break;
-        case "7":
-          ExecuteBashCommand(scriptPath + "/git-install.sh"); break;
-        case "8":
-          ExecuteCmd(scriptPath + "/nodejsSixteen-install.sh"); break;
-        case "9":
-          GitClone("git clone https://fersilva1995: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@github.com/fersilva1995/ApiClientMtwServer.git");
-          GitClone("git clone https://fersilva1995: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@github.com/fersilva1995/ApiMtwServer.git");
-          GitClone("git clone https://fersilva1995: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@github.com/fersilva1995/EntityMtwServer.git");
-          GitClone("git clone https://fersilva1995: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@github.com/fersilva1995/Utils.git");
-          GitClone("git clone https://fersilva1995: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@github.com/fersilva1995/MTWServer.git"); break;
-        case "10":
-          RecordOptions();
-          break;
-        default:
-          System.Console.WriteLine("option not found."); break;
+        string scriptPath = Directory.GetCurrentDirectory() + "/Scripts";
+        Console.Clear();
+        switch (installCmd)
+        {
+          case "1":
+            ExecuteBashCommand(scriptPath + "/mqtt-install.sh"); break;
+          case "2":
+            ExecuteBashCommand(scriptPath + "/nginx-install.sh"); break;
+          case "3":
+            InstallSqlServer(scriptPath + "/sqlserver-script.sh"); break;
+          case "4":
+            ExecuteBashCommand(scriptPath + "/mssqltools-install.sh"); break;
+          case "5":
+            RestoreDatabase(scriptPath, "5"); break;
+          case "6":
+            RestoreDatabase(scriptPath, "6"); break;
+          case "7":
+            ExecuteBashCommand(scriptPath + "/git-install.sh"); break;
+          case "8":
+            ExecuteCmd(scriptPath + "/nodejsSixteen-install.sh"); break;
+          case "9":
+            GitClone("git clone https://fersilva1995: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@github.com/fersilva1995/ApiClientMtwServer.git");
+            GitClone("git clone https://fersilva1995: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@github.com/fersilva1995/ApiMtwServer.git");
+            GitClone("git clone https://fersilva1995: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@github.com/fersilva1995/EntityMtwServer.git");
+            GitClone("git clone https://fersilva1995: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@github.com/fersilva1995/Utils.git");
+            GitClone("git clone https://fersilva1995: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@github.com/fersilva1995/MTWServer.git"); break;
+          case "10":
+            RecordOptions();
+            break;
+          default:
+            System.Console.WriteLine("option not found."); break;
+        }
+
+      }
+      catch (ProcessException ex)
+      {
+        System.Console.WriteLine(ex.Message);
+      }
+      catch (Exception e)
+      {
+        System.Console.WriteLine(e.Message);
       }
     }
 
@@ -304,11 +315,12 @@ namespace InstallerMTW.Processes
       string selectedOption = Console.ReadLine().ToString();
       if (selectedOption != String.Empty && selectedOption != null)
       {
+        DbManager.GetAllAvailableEquipments();
+        SelectedRange = DbManager.EquipmentList;
         switch (selectedOption)
         {
           case "1":
             DbManager.GetPrimaryRtsp();
-            //SelectedRange = DialogManager.range;
             break;
           case "2":
             CreateService(); break;
@@ -374,9 +386,14 @@ namespace InstallerMTW.Processes
     {
       if (!DialogManager.RemoveRange())
       {
-        Console.WriteLine("type the camera IP to delete: ");
-        string cameraIP = Console.ReadLine().ToString();
-        RemoveSelected(cameraIP);
+        IEnumerable<string> files = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), $"*.sh", SearchOption.AllDirectories);
+        foreach (var file in files)
+        {
+          System.Console.WriteLine(file);
+        }
+        Console.WriteLine("type the camera ID to delete: ");
+        int cameraID = int.Parse(Console.ReadLine());
+        RemoveSelected(cameraID.ToString());
 
       }
       else
@@ -386,11 +403,11 @@ namespace InstallerMTW.Processes
 
     }
 
-    private void RemoveSelected(string cameraIP)
+    private void RemoveSelected(string cameraID)
     {
       ChangeDirectory("/home/records");
-      IEnumerable<string> file = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), $"*{cameraIP}.sh", SearchOption.AllDirectories);
-      if (file.Any() && file.Count() == 1)
+      IEnumerable<string> file = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), $"*{cameraID}.sh", SearchOption.AllDirectories);
+      if (file.Contains($"record_{cameraID}.sh"))
       {
         OperationRtspProcess(file.First(), operation.Delete, string.Empty);
       }
@@ -401,7 +418,7 @@ namespace InstallerMTW.Processes
       ChangeDirectory("/etc/systemd/system");
       file.First().Remove(0);
 
-      file = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), $"*{cameraIP}.service", SearchOption.AllDirectories);
+      file = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), $"*{cameraID}.service", SearchOption.AllDirectories);
       if (file.Any() && file.Count() == 1)
       {
         OperationRtspProcess(file.First(), operation.Delete, string.Empty);
@@ -440,44 +457,67 @@ namespace InstallerMTW.Processes
         systemProcess.StartInfo.Verb = "runas";
         if (op == operation.Delete)
         {
-          systemProcess.StartInfo.Arguments = $"-c sudo rm {fileName}";
+          systemProcess.StartInfo.Arguments = $"-c rm {fileName}";
         }
         else
         {
-          systemProcess.StartInfo.Arguments = $"-c sudo mv {fileName} {newFileName}";
+          systemProcess.StartInfo.Arguments = $"-c mv {fileName} {newFileName}";
         }
         systemProcess.StartInfo.CreateNoWindow = true;
         systemProcess.StartInfo.UseShellExecute = false;
 
         systemProcess.Start();
         systemProcess.WaitForExit();
-        isProcessRunning = false;
       }
+      isProcessRunning = false;
     }
 
     private void CreateService()
     {
-      if (DialogManager.CreateRangeOfCameras())
+      if (SelectedRange.Count == 0 || SelectedRange == null)
       {
-        //Creates a range of cameras from the selected range of cameras on the database
-        DialogManager.RangeDialog(DbManager.EquipmentList);
-        //SelectedRange variable receives the created range of cameras
-        SelectedRange = DialogManager.NewSelectedRange;
-        CreateRangeOfRecordService();
+        CreateUnique();
       }
       else
       {
-        Equipment camera = DbManager.CreateEquipment();
-        if (camera.Ip != null)
+        System.Console.WriteLine("Create service for selected range?[y/n]");
+        string res = Console.ReadLine().ToString().ToUpper();
+        if (res == "Y")
         {
-          string recordString = $"transport tcp - allowed_media_types video - i \"rtsp://admin:admin@{camera.Id}:8554\" -vcodec" +
-                     "copy -map 0 -f segment -segment_time 20 -strftime 1 /home/records/camera/%Y%m%d%H%M%S.mkv";
-          CreateShAndService(camera, recordString);
+          if (SelectedRange.Count > 0) { SelectedRange.Clear(); }
+          SelectedRange = DialogManager.NewSelectedRange;
+          CreateRangeOfRecordService();
         }
-        else
+      }
+    }
+
+    private void CreateUnique()
+    {
+      if (DbManager.EquipmentList.Count > 0)
+      {
+        foreach (var equi in DbManager.EquipmentList)
         {
-          throw new ProcessException("The camera IP cannot be null.");
+          System.Console.WriteLine(equi.Id + " " + equi.PrimaryRtsp);
         }
+      }
+      else
+      {
+        throw new ProcessException("The list of equipments is empty.");
+      }
+
+      System.Console.WriteLine("Type the ID of the desired equipment: ");
+      int selectedID = int.Parse(Console.ReadLine());
+      Equipment? selected = DbManager.EquipmentList.FirstOrDefault(equip => equip.Id == selectedID);
+      if (selected != null && selected.Id > 0)
+      {
+        string recordString = $"transport tcp - allowed_media_types video - i \"rtsp://admin:admin@record_{selected.Id}:8554\" -vcodec" +
+                   "copy -map 0 -f segment -segment_time 20 -strftime 1 /home/records/camera/%Y%m%d%H%M%S.mkv";
+        CreateShAndService(selected, recordString);
+      }
+
+      else
+      {
+        throw new ProcessException("The camera IP cannot be null.");
       }
     }
 
@@ -513,6 +553,7 @@ namespace InstallerMTW.Processes
             writer.Flush(); //Despeja o buffer para o stream
           };
         };
+        SetFilesAsEx(Directory.GetCurrentDirectory() + "/" + fileName);
         CreateService($"record_{camera.Id}");
       }
       else
@@ -566,8 +607,9 @@ namespace InstallerMTW.Processes
         }
         else
         {
-          Directory.CreateDirectory("/home/" + dirNameToCreate); //create records
+          Directory.CreateDirectory("/home/" + dirNameToCreate); //create records directory
           Directory.SetCurrentDirectory(dirNameToCreate);
+          Directory.CreateDirectory("/home/" + dirNameToCreate + "/" + "cameras"); //create cameras directory
         }
         Console.WriteLine("Current Directory: " + Directory.GetCurrentDirectory());
       }

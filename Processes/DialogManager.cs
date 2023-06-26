@@ -66,9 +66,9 @@ namespace InstallerMTW.Processes
 
     public static void RangeDialog(List<Equipment> list)
     {
-      System.Console.WriteLine("Type the  start of the range: ");
+      System.Console.WriteLine("Type the  Id of the first element of the range: ");
       int start = int.Parse(Console.ReadLine());
-      System.Console.WriteLine("Type the end of the range: ");
+      System.Console.WriteLine("Type the Id of the last element of the range: ");
       int end = int.Parse(Console.ReadLine());
 
       SelectedRange(start, end, list);
@@ -76,12 +76,23 @@ namespace InstallerMTW.Processes
 
     public static void SelectedRange(int start, int end, List<Equipment> equipments)
     {
-      System.Console.WriteLine("Elements of the selected range: ");
+      if (NewSelectedRange.Count > 0)
+      {
+        NewSelectedRange.Clear();
+      }
       for (int cont = start; cont <= end; cont++)
       {
-        //range.Add(equipments[cont].PrimaryRtsp);
-        NewSelectedRange.Add(equipments[cont]);
-        System.Console.WriteLine(equipments[cont].PrimaryRtsp);
+        Equipment? element = equipments.FirstOrDefault(equip => equip.Id == cont);
+        if (element != null && element.PrimaryRtsp != string.Empty)
+        {
+          NewSelectedRange.Add(element);
+        }
+      }
+      Console.Clear();
+      System.Console.WriteLine("elements in the selected range");
+      foreach (Equipment equip in NewSelectedRange)
+      {
+        System.Console.WriteLine(equip.Id + " " + equip.PrimaryRtsp + " " + equip.Tipo);
       }
     }
 
@@ -98,6 +109,7 @@ namespace InstallerMTW.Processes
         return false;
       }
     }
+
 
     public static bool RemoveRange()
     {
