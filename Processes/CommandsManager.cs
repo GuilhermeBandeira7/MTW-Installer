@@ -4,6 +4,7 @@ using EntityMtwServer.Entities;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography.Xml;
 using System.Text;
 
@@ -213,10 +214,6 @@ namespace InstallerMTW.Processes
         {
           System.Console.WriteLine("Failed to set executable permission");
         }
-        else
-        {
-          System.Console.WriteLine("Executable permission set on the file");
-        }
 
         isProcessRunning = false;
       }
@@ -274,7 +271,8 @@ namespace InstallerMTW.Processes
 
     public void GitClone(string cmd)
     {
-      GoToPriorDirectory();
+      //GoToPriorDirectory();
+      ExecuteCmd("cd ..");
       if (!Directory.Exists("Code"))
       {
         ExecuteCmd("mkdir Code");
@@ -311,169 +309,114 @@ namespace InstallerMTW.Processes
     public void RecordOptions()
     {
       Console.Clear();
-      Console.WriteLine("[1]List \n[2]Create \n[3]Remove \n[4]Change \n[5]Exit");
-      string selectedOption = Console.ReadLine().ToString();
-      if (selectedOption != String.Empty && selectedOption != null)
+      string selectedOption = DialogManager.GetUserInput();
+      switch (selectedOption)
       {
-        DbManager.GetAllAvailableEquipments();
-        SelectedRange = DbManager.EquipmentList;
-        switch (selectedOption)
-        {
-          case "1":
-            DbManager.GetPrimaryRtsp();
-            break;
-          case "2":
-            CreateService(); break;
-          case "3":
-            RemoveRstp(); break;
-          case "4":
-            AlterRtsp(); break;
-          case "5":
-            break;
-        }
+        case "1":
+          //DbManager.GetAllAvailableEquipments();
+          DialogManager.ListOptions();
+          break;
+        case "2":
+          CreateService(); break;
+        case "3":
+          RemoveRstp(); break;
+        case "4":
+          break;
+        default:
+          throw new ProcessException("Invalid Option");
       }
-      else
-      {
-        throw new ProcessException("Invalid option.");
-      }
+
     }
-
-    public void AlterRtsp()
-    {
-      System.Console.WriteLine("Type the camera ID to alter: ");
-      long id = long.Parse(Console.ReadLine());
-      System.Console.WriteLine("Type the new Camera IP: ");
-      string ip = Console.ReadLine().ToString();
-
-      foreach (Equipment camera in SelectedRange)
-      {
-        if (camera.Id == id)
-        {
-          camera.Ip = ip;
-        }
-      }
-
-      AlterRtspOnDirectories(id, ip);
-    }
-
-    private void AlterRtspOnDirectories(long id, string ip)
-    {
-      ChangeDirectory("/home/records");
-      IEnumerable<string> file = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), $"*record_{id}.sh", SearchOption.AllDirectories);
-      if (file.Any())
-      {
-        OperationRtspProcess(file.First(), operation.Alter, ip);
-      }
-      else
-      {
-        throw new ProcessException("Any sh file was found.");
-      }
-      ChangeDirectory("/etc/systemd/system");
-      file.First().Remove(0);
-
-      file = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), $"*record_{id}.service", SearchOption.AllDirectories);
-      if (file.Any())
-      {
-        OperationRtspProcess(file.First(), operation.Alter, ip);
-      }
-      else
-      {
-        throw new ProcessException("Any service file with the specified IP was found.");
-      }
-    }
-
     public void RemoveRstp()
     {
-      if (!DialogManager.RemoveRange())
+      Console.Clear();
+      System.Console.WriteLine("[1]Remove unique camera \n[2]Remove range of cameras");
+      string option = Console.ReadLine().ToString();
+      switch (option)
       {
-        IEnumerable<string> files = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), $"*.sh", SearchOption.AllDirectories);
-        foreach (var file in files)
-        {
-          System.Console.WriteLine(file);
-        }
-        Console.WriteLine("type the camera ID to delete: ");
-        int cameraID = int.Parse(Console.ReadLine());
-        RemoveSelected(cameraID.ToString());
-
+        case "1":
+          PrintAllFiles();
+          string idToRemove = DialogManager.RemoveCameraDialog();
+          RemoveSelected(idToRemove);
+          break;
+        case "2":
+          RemoveRange();
+          break;
+        default:
+          System.Console.WriteLine("Invalid option.");
+          break;
       }
-      else
+
+    }
+
+    public void PrintAllFiles()
+    {
+      System.Console.WriteLine("Sh files and service files: ");
+      System.Console.WriteLine();
+      ChangeDirectory("/home/records");
+      IEnumerable<string> files = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), $"record_*.sh", SearchOption.AllDirectories);
+      foreach (var file in files)
       {
-        RemoveRange();
+        System.Console.WriteLine(file);
       }
 
+      System.Console.WriteLine();
+      ChangeDirectory("/etc/systemd/system");
+      IEnumerable<string> services = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), $"record_*.service", SearchOption.AllDirectories);
+      foreach (var service in services)
+      {
+        System.Console.WriteLine(service);
+      }
     }
 
     private void RemoveSelected(string cameraID)
     {
       ChangeDirectory("/home/records");
-      IEnumerable<string> file = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), $"*{cameraID}.sh", SearchOption.AllDirectories);
-      if (file.Contains($"record_{cameraID}.sh"))
-      {
-        OperationRtspProcess(file.First(), operation.Delete, string.Empty);
-      }
-      else
-      {
-        throw new ProcessException("Any sh file was found.");
-      }
-      ChangeDirectory("/etc/systemd/system");
-      file.First().Remove(0);
+      File.Delete($"/home/records/record_{cameraID}.sh");
 
-      file = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), $"*{cameraID}.service", SearchOption.AllDirectories);
-      if (file.Any() && file.Count() == 1)
-      {
-        OperationRtspProcess(file.First(), operation.Delete, string.Empty);
-      }
-      else
-      {
-        throw new ProcessException("Any service file with the specified IP was found.");
-      }
+      ChangeDirectory("/etc/systemd/system");
+      File.Delete($"/home/records/record_{cameraID}.service");
     }
 
     private void RemoveRange()
     {
-      if (SelectedRange.Count > 0)
+      ChangeDirectory("/home/records");
+      IEnumerable<string> shFiles = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), $"record_*.sh", SearchOption.AllDirectories);
+      if (shFiles.Count() > 0)
       {
-        foreach (Equipment camera in SelectedRange)
+        foreach (var camera in shFiles)
         {
-          ChangeDirectory("/home/record");
-          OperationRtspProcess($"record_{camera.Id}.sh", operation.Delete, string.Empty);
-
-          ChangeDirectory("/etc/systemd/system");
-          OperationRtspProcess($"record_{camera.Id}.service", operation.Delete, string.Empty);
+          File.Delete(camera);
         }
       }
       else
       {
-        throw new ProcessException("The range of selected cameras is empty.");
+        throw new ProcessException("Any sh file found.");
       }
+
+      RemoveRangeOfServices();
     }
 
-    private void OperationRtspProcess(string fileName, operation op, string newFileName)
+    private void RemoveRangeOfServices()
     {
-      if (!isProcessRunning) { systemProcess = new Process(); }
-      using (systemProcess)
+      ChangeDirectory("/etc/systemd/system");
+      IEnumerable<string> serviceFiles = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), $"record_*.service", SearchOption.AllDirectories);
+      if (serviceFiles.Count() > 0)
       {
-        systemProcess.StartInfo.FileName = "/bin/bash";
-        systemProcess.StartInfo.Verb = "runas";
-        if (op == operation.Delete)
+        foreach (var camera in serviceFiles)
         {
-          systemProcess.StartInfo.Arguments = $"-c rm {fileName}";
+          File.Delete(camera);
         }
-        else
-        {
-          systemProcess.StartInfo.Arguments = $"-c mv {fileName} {newFileName}";
-        }
-        systemProcess.StartInfo.CreateNoWindow = true;
-        systemProcess.StartInfo.UseShellExecute = false;
-
-        systemProcess.Start();
-        systemProcess.WaitForExit();
       }
-      isProcessRunning = false;
+      else
+      {
+        throw new ProcessException("Any service file found.");
+      }
     }
 
     private void CreateService()
     {
+      SelectedRange = DialogManager.NewSelectedRange;
       if (SelectedRange.Count == 0 || SelectedRange == null)
       {
         CreateUnique();
@@ -484,33 +427,24 @@ namespace InstallerMTW.Processes
         string res = Console.ReadLine().ToString().ToUpper();
         if (res == "Y")
         {
-          if (SelectedRange.Count > 0) { SelectedRange.Clear(); }
-          SelectedRange = DialogManager.NewSelectedRange;
+          //if (SelectedRange.Count > 0) { SelectedRange.Clear(); }
           CreateRangeOfRecordService();
         }
       }
+
+      RealoadAndStartService();
     }
 
     private void CreateUnique()
     {
-      if (DbManager.EquipmentList.Count > 0)
-      {
-        foreach (var equi in DbManager.EquipmentList)
-        {
-          System.Console.WriteLine(equi.Id + " " + equi.PrimaryRtsp);
-        }
-      }
-      else
-      {
-        throw new ProcessException("The list of equipments is empty.");
-      }
+      DbManager.PrintEquipmentDb();
 
       System.Console.WriteLine("Type the ID of the desired equipment: ");
       int selectedID = int.Parse(Console.ReadLine());
-      Equipment? selected = DbManager.EquipmentList.FirstOrDefault(equip => equip.Id == selectedID);
+      Equipment? selected = DbManager._context.Equipments.FirstOrDefault(equip => equip.Id == selectedID);
       if (selected != null && selected.Id > 0)
       {
-        string recordString = $"transport tcp - allowed_media_types video - i \"rtsp://admin:admin@record_{selected.Id}:8554\" -vcodec" +
+        string recordString = $"transport tcp - allowed_media_types video - i \"rtsp://admin:admin@record_{selected.Ip}:8554\" -vcodec" +
                    "copy -map 0 -f segment -segment_time 20 -strftime 1 /home/records/camera/%Y%m%d%H%M%S.mkv";
         CreateShAndService(selected, recordString);
       }
@@ -523,11 +457,11 @@ namespace InstallerMTW.Processes
 
     private void CreateRangeOfRecordService()
     {
-      if (SelectedRange != null && SelectedRange.Count > 0)
+      if (SelectedRange.Count > 0)
       {
         for (int cont = 0; cont <= SelectedRange.Count; cont++)
         {
-          string recordString = $"transport tcp - allowed_media_types video - i \"rtsp://admin:admin@{SelectedRange.ElementAt(cont).Id}:8554\" -vcodec" +
+          string recordString = $"transport tcp - allowed_media_types video - i \"rtsp://admin:admin@{SelectedRange.ElementAt(cont).Ip}:8554\" -vcodec" +
                    "copy -map 0 -f segment -segment_time 20 -strftime 1 /home/records/camera/%Y%m%d%H%M%S.mkv";
           CreateShAndService(SelectedRange.ElementAt(cont), recordString);
         }
@@ -562,7 +496,7 @@ namespace InstallerMTW.Processes
       }
     }
 
-    private void RealoadAndStartService(string serviceName)
+    private void RealoadAndStartService()
     {
       ChangeDirectory("/etc/systemd/system");
 
@@ -571,8 +505,7 @@ namespace InstallerMTW.Processes
       {
         systemProcess.StartInfo.FileName = "/bin/bash";
         systemProcess.StartInfo.Verb = "runas";
-        systemProcess.StartInfo.ArgumentList.Add($"-c systemctl daemon-reload");
-        systemProcess.StartInfo.ArgumentList.Add($"-c systemctl start {serviceName}");
+        systemProcess.StartInfo.Arguments = $"-c systemctl daemon-reload";
         systemProcess.StartInfo.CreateNoWindow = true;
         systemProcess.StartInfo.UseShellExecute = false;
 
@@ -586,7 +519,6 @@ namespace InstallerMTW.Processes
     {
       ChangeDirectory("/etc/systemd/system");
       string nameService = $"{fileName}.service";
-      Console.WriteLine(Directory.GetCurrentDirectory());
       EditServiceScript(fileName);
     }
 
@@ -611,7 +543,7 @@ namespace InstallerMTW.Processes
           Directory.SetCurrentDirectory(dirNameToCreate);
           Directory.CreateDirectory("/home/" + dirNameToCreate + "/" + "cameras"); //create cameras directory
         }
-        Console.WriteLine("Current Directory: " + Directory.GetCurrentDirectory());
+
       }
       else
       {
@@ -630,6 +562,7 @@ namespace InstallerMTW.Processes
         throw new ProcessException("The file path does not exist.");
       }
     }
+
 
     public void EditServiceScript(string serviceName) //Refazer esse método de maneira inteligente
     {

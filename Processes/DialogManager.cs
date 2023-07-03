@@ -36,7 +36,7 @@ namespace InstallerMTW.Processes
       {
         while (runDialog == true)
         {
-          Console.WriteLine("Select the desired package to install: \n[1] " +
+          Console.WriteLine(" \n[1] " +
            "MQTT \n[2] Nginx \n[3] SQL Server 2017 \n[4] Mssql-Tools \n[5] Restore MasterServer "
            + "\n[6] Restore TmHub \n[7] Git \n[8] Node Js 16x \n[9] ApiMtwServer \n[10] Record");
           System.Console.WriteLine("type 'exit' to exit");
@@ -71,9 +71,20 @@ namespace InstallerMTW.Processes
       System.Console.WriteLine("Type the Id of the last element of the range: ");
       int end = int.Parse(Console.ReadLine());
 
-      SelectedRange(start, end, list);
+      if (ValidRange(start, end, list))
+      {
+        SelectedRange(start, end, list);
+      }
+      else
+      {
+        throw new ProcessException("Invalid selection of the range.");
+      }
+
     }
 
+    /// <summary>
+    /// Select the desired range based on the user input and saves it within NewSelectedRange.
+    /// </summary>
     public static void SelectedRange(int start, int end, List<Equipment> equipments)
     {
       if (NewSelectedRange.Count > 0)
@@ -83,46 +94,109 @@ namespace InstallerMTW.Processes
       for (int cont = start; cont <= end; cont++)
       {
         Equipment? element = equipments.FirstOrDefault(equip => equip.Id == cont);
-        if (element != null && element.PrimaryRtsp != string.Empty)
+        if (element != null && element.RtspConfigs.First().OutputRtsp != string.Empty)
         {
           NewSelectedRange.Add(element);
         }
       }
+      PrintSelectedRange();
+    }
+
+    public static bool ValidRange(int start, int end, List<Equipment> equipments)
+    {
+      int numOfElements = equipments.Count;
+
+      if (end >= start && end <= numOfElements)
+      {
+        return true;
+      }
+      else
+      {
+        return false;
+      }
+    }
+
+    private static void PrintSelectedRange()
+    {
       Console.Clear();
-      System.Console.WriteLine("elements in the selected range");
-      foreach (Equipment equip in NewSelectedRange)
+      if (NewSelectedRange.Count > 0)
       {
-        System.Console.WriteLine(equip.Id + " " + equip.PrimaryRtsp + " " + equip.Tipo);
+        System.Console.WriteLine("elements in the selected range");
+        foreach (Equipment equip in NewSelectedRange)
+        {
+          System.Console.WriteLine(equip.Id + " " + equip.RtspConfigs.First().OutputRtsp + " " + equip.Type);
+        }
+      }
+      else
+      {
+        throw new ProcessException("The list of selected elements is empty.");
+      }
+
+    }
+
+    public static string GetUserInput()
+    {
+      Console.WriteLine("[1]List \n[2]Create \n[3]Remove \n[4]Exit");
+      string? selectedOption = Console.ReadLine().ToString();
+      if (selectedOption != String.Empty)
+      {
+        return selectedOption;
+      }
+      else
+      {
+        throw new ProcessException("Input can't be Null value.");
       }
     }
 
-    public static bool CreateRangeOfCameras()
+    /// <summary>
+    /// List all equipments on the database and calls DbManager to add all equipments to a new list.
+    /// </summary>
+    public static void ListOptions()
     {
-      System.Console.WriteLine("Do you wish to create a new service for each rtsp in the selected range?[y/n]  ");
+      System.Console.WriteLine("[1]List equipments on Database \n[2]Select Range \n[3]Clear Selected Range \n[4]Exit");
+      string? selectedOption = Console.ReadLine().ToString();
+      if (selectedOption != String.Empty)
+      {
+        switch (selectedOption)
+        {
+          case "1":
+            DbManager.PrintEquipmentDb();
+            break;
+          case "2":
+            DbManager.PrintEquipmentDb();
+            DbManager.AddEquimentsToList();
+            break;
+          case "3":
+            ClearSelectedRange();
+            break;
+          case "4":
+            break;
+        }
+
+      }
+      else
+      {
+        throw new ProcessException("Input can't be Null value.");
+      }
+    }
+
+    public static void ClearSelectedRange()
+    {
+      if (NewSelectedRange.Count > 0)
+      {
+        NewSelectedRange.Clear();
+      }
+      else
+      {
+        throw new ProcessException("Selected range is already empty.");
+      }
+    }
+
+    public static string RemoveCameraDialog()
+    {
+      System.Console.WriteLine("type the Id of the camera to delete: ");
       string response = Console.ReadLine().ToString();
-      if (response == "y")
-      {
-        return true;
-      }
-      else
-      {
-        return false;
-      }
-    }
-
-
-    public static bool RemoveRange()
-    {
-      System.Console.WriteLine("Remove all cameras in the selected Range?[y/n]");
-      string response = Console.ReadLine().ToUpper();
-      if (response == "Y")
-      {
-        return true;
-      }
-      else
-      {
-        return false;
-      }
+      return response;
     }
   }
 }

@@ -1,44 +1,46 @@
 ﻿using EntityMtwServer;
 using EntityMtwServer.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace InstallerMTW.Processes
 {
   public class DbManager
   {
-    private static MasterServerContext _context = new MasterServerContext();
+    public static MasterServerContext _context = new MasterServerContext();
 
-    //Holds all equipments in the database
+    //Holds all equipments of the database
     public static List<Equipment> EquipmentList = new List<Equipment>();
 
-    public static void GetAllAvailableEquipments()
+
+    public static void PrintEquipmentDb()
     {
-      foreach (var rtsp in _context.Equipments)
+      foreach (var rtsp in _context.Equipments.Include(x => x.RtspConfigs))
       {
-        if (rtsp.PrimaryRtsp != String.Empty)
+        if (rtsp.RtspConfigs.Count > 0)
         {
-          EquipmentList.Add(rtsp);
+          System.Console.WriteLine(rtsp.Id + " " + rtsp.RtspConfigs.First().OutputRtsp + " " + rtsp.Type);
         }
       }
     }
 
-    public static void GetPrimaryRtsp()
+    /// <summary>
+    /// Add all equipments on the database to the EquipementList object and Calls dialog manager for range selection.
+    /// </summary>
+    public static void AddEquimentsToList()
     {
-      foreach (var rtsp in EquipmentList)
+      if (EquipmentList.Count > 0)
       {
-        if (rtsp.PrimaryRtsp != String.Empty)
+        EquipmentList.Clear();
+      }
+      foreach (var rtsp in _context.Equipments.Include(x => x.RtspConfigs))
+      {
+        if (rtsp.RtspConfigs.Count > 0)
         {
-          System.Console.WriteLine(rtsp.Id + " " + rtsp.PrimaryRtsp);
+          EquipmentList.Add(rtsp);
         }
+      }
 
-        if (EquipmentList.Count == 0)
-        {
-          throw new ProcessException("Could not find any equipment on the database.");
-        }
-      }
-      if (DialogManager.CreateRangeOfCameras())
-      {
-        DialogManager.RangeDialog(EquipmentList);
-      }
+      DialogManager.RangeDialog(EquipmentList);
     }
   }
 }
